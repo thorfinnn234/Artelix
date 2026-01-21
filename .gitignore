@@ -1,0 +1,52 @@
+# dependencies
+node_modules
+
+# env files
+.env
+.env.*
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+---
+
+## Backend Tech Stack
+
+- Node.js + Express
+- MongoDB Atlas + Mongoose
+- JWT Authentication
+- Role-based access control (User / Vendor / Admin)
+
+---
+
+## Roles & Permissions
+
+### User
+- Browse approved vendors
+- View vendor details
+- Save/unsave vendors (bookmark)
+
+### Vendor
+- Can manage only their own vendor listing via `/api/vendors/me`
+- Can submit an appeal if suspended/rejected
+
+### Admin
+- Approves/rejects/suspends/unsuspends vendors
+- Can view all vendors (any status)
+- Reviews vendor appeals
+
+---
+
+## Setup (Backend)
+
+### 1) Install dependencies
+
+```bash
+cd server
+npm install
