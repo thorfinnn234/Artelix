@@ -3,28 +3,30 @@ import cors from "cors";
 import "dotenv/config";
 import helmet from "helmet";
 import morgan from "morgan";
-import dotenv from "dotenv";
-import authRoutes from "./routes/auth.routes.js";
-import meRoutes from "./routes/me.routes.js";
-import vendorRoutes from "./routes/vendor.routes.js";
-import savedRoutes from "./routes/saved.routes.js";
-import appealRoutes from "./routes/appeal.routes.js";
-import { notFound, errorHandler } from "./middleware/errorHandler.js";
+import authRoutes from "./src/routes/auth.routes.js";
+import meRoutes from "./src/routes/me.routes.js";
+import vendorRoutes from "./src/routes/vendor.routes.js";
+import savedRoutes from "./src/routes/saved.routes.js";
+import appealRoutes from "./src/routes/appeal.routes.js";
+import { notFound, errorHandler } from "./src/middleware/errorHandler.js";
+import passport from "./src/config/passport.js";
 
 
 
 
-import { connectDB } from "./config/db.js";
-
-dotenv.config();
+import { connectDB } from "./src/config/db.js";
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(passport.initialize());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/me", meRoutes);
@@ -40,6 +42,7 @@ app.use(errorHandler);
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", app: "Vendorly API" });
 });
+
 
 const PORT = process.env.PORT || 5000;
 

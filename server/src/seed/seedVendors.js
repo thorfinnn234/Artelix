@@ -43,7 +43,7 @@ function randRating() {
 
 async function ensureAdmin() {
   // Create or find an admin owner for seeded vendors
-  const email = "seed-admin@vendorly.dev";
+  const email = "seed-admin@Vendorly.dev";
   let admin = await User.findOne({ email });
 
   if (!admin) {

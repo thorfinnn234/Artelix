@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import { sendEmail } from "../utils/email.js";
 import { passwordResetTemplate } from "../utils/emailTemplates.js";
@@ -60,8 +61,6 @@ export async function forgotPassword(req, res) {
 
   return res.status(200).json({ message: genericMsg });
 }
-
-import bcrypt from "bcryptjs";
 
 // POST /api/auth/reset-password
 export async function resetPassword(req, res) {

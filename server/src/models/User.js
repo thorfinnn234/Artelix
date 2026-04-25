@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true, trim: true },
+    avatar: {
+      type: String,
+      default: null,
+    },
     email: {
       type: String,
       required: true,
@@ -14,7 +18,7 @@ const userSchema = new mongoose.Schema(
 
     role: { type: String, enum: ["user", "vendor", "admin"], default: "user" },
 
-    // For vendors only (links the vendor listing created on signup)
+    // For vendors only (links the vendor listing created on Register)
     vendorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vendor",
@@ -29,6 +33,7 @@ const userSchema = new mongoose.Schema(
     passwordResetAttempts: { type: Number, default: 0 },
     passwordResetLastSentAt: { type: Date, default: null },
   },
+
   { timestamps: true },
 );
 

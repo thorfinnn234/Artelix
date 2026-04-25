@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import Vendor from "../models/Vendor.js";
-import { signupSchema, loginSchema } from "../validators/auth.validators.js";
+import { RegisterSchema, loginSchema } from "../validators/auth.validators.js";
 
 function signToken(user) {
   const secret = process.env.JWT_SECRET;
@@ -15,8 +15,8 @@ function signToken(user) {
   );
 }
 
-export async function signup(req, res) {
-  const parsed = signupSchema.safeParse(req.body);
+export async function Register(req, res) {
+  const parsed = RegisterSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ message: "Invalid input", errors: parsed.error.flatten() });
   }
@@ -27,16 +27,16 @@ export async function signup(req, res) {
 
   // Prevent random people from signing up as admin
   if (role === "admin") {
-    return res.status(403).json({ message: "Admin signup is not allowed." });
+    return res.status(403).json({ message: "Admin Register is not allowed." });
   }
 
   const existing = await User.findOne({ email });
-  if (existing) return res.status(409).json({ message: "Email already registered." });
+  if (existing) return res.status(409).json({ message: "Email already Registered." });
 
   // If vendor role: vendor details must exist
   if (role === "vendor") {
     if (!vendorInput) {
-      return res.status(400).json({ message: "Vendor details are required for vendor signup." });
+      return res.status(400).json({ message: "Vendor details are required for vendor Register." });
     }
   }
 
@@ -70,7 +70,7 @@ export async function signup(req, res) {
   const token = signToken(user);
 
   return res.status(201).json({
-    message: "Signup successful",
+    message: "Register successful",
     token,
     user: {
       id: user._id,
@@ -78,6 +78,7 @@ export async function signup(req, res) {
       email: user.email,
       role: user.role,
       vendorId: user.vendorId,
+      avatar: user.avatar,
     },
     vendor,
   });
@@ -108,6 +109,7 @@ export async function login(req, res) {
       email: user.email,
       role: user.role,
       vendorId: user.vendorId,
+      avatar: user.avatar,
     },
   });
 }
