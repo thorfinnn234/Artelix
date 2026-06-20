@@ -1,0 +1,13 @@
+﻿C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:2:import { saveArtisan, unsaveArtisan } from "../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:3:import ArtisanModal from "./ArtisanModal";
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:2:import { saveArtisan, unsaveArtisan } from "../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\hooks\useArtisan.js:2:import { listArtisan } from "../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:4:import { getMyArtisan, getArtisan } from "../../services/Artisanervice";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Listing.jsx:4:import { getMyArtisan, updateMyArtisan } from "../../services/Artisanervice";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Profile.jsx:3:import { getMyArtisan, updateMyArtisan } from "../../services/Artisanervice";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:3:import { getArtisanById, saveArtisan, unsaveArtisan } from "../../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:2:import { getArtisan } from "../../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:4:import ArtisanCard from "../../components/ArtisanCard";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:2:import { getSavedArtisan } from "../../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:4:import ArtisanCard from "../../components/ArtisanCard";
+C:\Users\HP\Documents\vendorly\server\server.js:8:import ArtisanRoutes from "./src/routes/artisan.routes.js";

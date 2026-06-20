@@ -1,0 +1,52 @@
+# dependencies
+node_modules
+
+# env files
+.env
+.env.*
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+---
+
+## Backend Tech Stack
+
+- Node.js + Express
+- MongoDB Atlas + Mongoose
+- JWT Authentication
+- Role-based access control (User / Artisan / Admin)
+
+---
+
+## Roles & Permissions
+
+### User
+- Browse approved Artisan
+- View Artisan details
+- Save/unsave Artisan (bookmark)
+
+### Artisan
+- Can manage only their own Artisan listing via `/api/Artisan/me`
+- Can submit an appeal if suspended/rejected
+
+### Admin
+- Approves/rejects/suspends/unsuspends Artisan
+- Can view all Artisan (any status)
+- Reviews Artisan appeals
+
+---
+
+## Setup (Backend)
+
+### 1) Install dependencies
+
+```bash
+cd server
+npm install

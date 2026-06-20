@@ -1,0 +1,237 @@
+﻿C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:2:import { saveArtisan, unsaveArtisan } from "../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:3:import ArtisanModal from "./ArtisanModal";
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:25:export default function ArtisanCard({ Artisan, onSaveToggle }) {
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:26:const [saved, setSaved]       = useState(Artisan.isSaved);
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:36:await unsaveArtisan(Artisan._id);
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:39:await saveArtisan(Artisan._id);
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:65:{Artisan.name?.charAt(0).toUpperCase()}
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:71:{Artisan.name}
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:74:{Artisan.category}
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:97:<StarRating rating={Artisan.rating} />
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:108:<span className="text-xs text-gray-400 truncate">{Artisan.address}</span>
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:115:${Artisan.status === "approved" ? "badge-active" :
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:116:Artisan.status === "pending"  ? "badge-pending" : "badge-suspended"}`}>
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:117:{Artisan.status}
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanCard.jsx:128:<ArtisanModal
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:2:import { saveArtisan, unsaveArtisan } from "../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:21:export default function ArtisanModal({ Artisan, onClose, onSaveToggle }) {
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:22:const [saved, setSaved]   = useState(Artisan.isSaved);
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:33:await unsaveArtisan(Artisan._id);
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:36:await saveArtisan(Artisan._id);
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:76:{Artisan.name?.charAt(0).toUpperCase()}
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:80:{Artisan.name}
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:84:{Artisan.category}
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:95:<StarRating rating={Artisan.rating} />
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:97:${Artisan.status === "approved"
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:100:{Artisan.status}
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:109:value: Artisan.phone,
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:119:value: Artisan.address,
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:131:value: new Date(Artisan.createdAt).toLocaleDateString("en-NG", {
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:162:<a href={`tel:${Artisan.phone}`}
+C:\Users\HP\Documents\vendorly\client\src\components\ArtisanModal.jsx:170:<a href={`https://wa.me/${Artisan.phone?.replace(/^0/, "234")}`}
+C:\Users\HP\Documents\vendorly\client\src\components\SearchBar.jsx:13:placeholder={placeholder || "Search Artisan..."}
+C:\Users\HP\Documents\vendorly\client\src\hooks\useArtisan.js:2:import { listArtisan } from "../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\hooks\useArtisan.js:4:export const useArtisan = (params = {}) => {
+C:\Users\HP\Documents\vendorly\client\src\layouts\ArtisanLayout.jsx:143:export default function ArtisanLayout({ children }) {
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:50:<AdminLayout pendingCount={Artisan.length}>
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:56:{Artisan.length} Artisan{Artisan.length !== 1 ? "s" : ""} waiting for review
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:70:) : Artisan.length === 0 ? (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:83:{Artisan.map((Artisan) => (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:84:<div key={Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:92:{Artisan.name?.charAt(0).toUpperCase()}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:98:{Artisan.name}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:100:<span className="badge-pending text-2xs">{Artisan.status}</span>
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:107:{ icon: "🏷️", value: Artisan.category },
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:108:{ icon: "📍", value: Artisan.address },
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:109:{ icon: "📞", value: Artisan.phone },
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:110:{ icon: "📅", value: new Date(Artisan.createdAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }) },
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:122:onClick={() => handleApprove(Artisan._id)}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:123:disabled={actionLoading === Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Approvals.jsx:125:{actionLoading === Artisan._id ? "..." : "✓ Approve"}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:80:placeholder="Search Artisan..." className="input pl-10" />
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:121:) : Artisan.length === 0 ? (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:127:) : Artisan.map((Artisan) => (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:128:<tr key={Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:136:{Artisan.name?.charAt(0).toUpperCase()}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:141:{Artisan.name}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:146:<span className="badge-active">{Artisan.category}</span>
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:149:{Artisan.phone}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:153:{Artisan.address}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:157:${Artisan.status === "approved"  ? "badge-active" :
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:158:Artisan.status === "pending"   ? "badge-pending" :
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:159:Artisan.status === "suspended" ? "badge-suspended" :
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:161:{Artisan.status}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:166:{Artisan.status === "pending" && (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:168:<button onClick={() => handleAction("approve", Artisan._id)}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:169:disabled={actionLoading === Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:184:{Artisan.status === "approved" && (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:192:{Artisan.status === "suspended" && (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:193:<button onClick={() => handleAction("unsuspend", Artisan._id)}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:194:disabled={actionLoading === Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:220:Showing {Artisan.length} of {total} Artisan
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:232:disabled={Artisan.length < 12}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:253:? `Are you sure you want to delete "${modal.Artisan.name}"? This cannot be undone.`
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:254:: `Please provide a reason for ${modal.type}ing "${modal.Artisan.name}".`}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:271:onClick={() => handleAction(modal.type, modal.Artisan._id, reason)}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:272:disabled={actionLoading === modal.Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Artisan.jsx:278:{actionLoading === modal.Artisan._id ? "Processing..." :
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:179:{pendingArtisan.length > 0 && (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:186:{pendingArtisan.length}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:195:{pendingArtisan.map((Artisan) => (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:196:<div key={Artisan._id} className="card border-amber-200 dark:border-amber-500/20">
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:201:{Artisan.name?.charAt(0).toUpperCase()}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:206:{Artisan.name}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:208:<p className="text-2xs text-gray-400">{Artisan.category}</p>
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:211:<p className="text-xs text-gray-400 mb-3 truncate">{Artisan.address}</p>
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:257:) : recentArtisan.map((Artisan) => (
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:258:<tr key={Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:266:{Artisan.name?.charAt(0).toUpperCase()}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:271:{Artisan.name}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:276:<span className="badge-active">{Artisan.category}</span>
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:279:{Artisan.address}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:283:${Artisan.status === "approved"  ? "badge-active" :
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:284:Artisan.status === "pending"   ? "badge-pending" :
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:285:Artisan.status === "suspended" ? "badge-suspended" :
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:287:{Artisan.status}
+C:\Users\HP\Documents\vendorly\client\src\pages\admin\Dashboard.jsx:291:{new Date(Artisan.createdAt).toLocaleDateString("en-NG", {
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:3:import ArtisanLayout from "../../layouts/ArtisanLayout";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:4:import { getMyArtisan, getArtisan } from "../../services/Artisanervice";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:64:<ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:87:{!loadingArtisan && Artisan && Artisan.status !== "approved" && (
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:89:${Artisan.status === "pending"
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:92:{Artisan.status === "pending" ? "⏳" : "🚫"}
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:93:{Artisan.status === "pending"
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:95:: `Your account has been ${Artisan.status}. Contact support.`}
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:268:{Artisan.length} Artisan shown
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:297:) : Artisan.length === 0 ? (
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:304:Artisan.map((v) => {
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:307:<tr key={Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:315:{Artisan.name?.charAt(0).toUpperCase()}
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:320:{Artisan.name}
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:325:<span className="badge-active">{Artisan.category}</span>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:328:{Artisan.phone}
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:331:{Artisan.address}
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:334:<StarRating rating={Artisan.rating} />
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:338:${Artisan.status === "approved" ? "badge-active" :
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:339:Artisan.status === "pending" ? "badge-pending" : "badge-suspended"}`}>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:340:{Artisan.status}
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Dashboard.jsx:353:</ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Jobs.jsx:2:import ArtisanLayout from "../../layouts/ArtisanLayout";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Jobs.jsx:36:<ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Jobs.jsx:166:</ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Listing.jsx:3:import ArtisanLayout from "../../layouts/ArtisanLayout";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Listing.jsx:4:import { getMyArtisan, updateMyArtisan } from "../../services/Artisanervice";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Listing.jsx:110:<ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Listing.jsx:361:? new Date(Artisan.createdAt).toLocaleDateString("en-NG", {
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Listing.jsx:389:</ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Messages.jsx:1:import ArtisanLayout from "../../layouts/ArtisanLayout";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Messages.jsx:12:<ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Messages.jsx:68:</ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Profile.jsx:2:import ArtisanLayout from "../../layouts/ArtisanLayout";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Profile.jsx:3:import { getMyArtisan, updateMyArtisan } from "../../services/Artisanervice";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Profile.jsx:61:<ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Profile.jsx:215:</ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Works.jsx:2:import ArtisanLayout from "../../layouts/ArtisanLayout";
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Works.jsx:32:<ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\Artisan\Works.jsx:131:</ArtisanLayout>
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:3:import { getArtisanById, saveArtisan, unsaveArtisan } from "../../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:25:export default function ArtisanDetails() {
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:50:await unsaveArtisan(Artisan._id);
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:53:await saveArtisan(Artisan._id);
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:125:{Artisan.name?.charAt(0).toUpperCase()}
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:131:{Artisan.name}
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:134:{Artisan.category}
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:137:<StarRating rating={Artisan.rating} />
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:167:value: Artisan.phone,
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:177:value: Artisan.address,
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:189:value: Artisan.status,
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:199:value: new Date(Artisan.createdAt).toLocaleDateString("en-NG", {
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:237:href={`tel:${Artisan.phone}`}
+C:\Users\HP\Documents\vendorly\client\src\pages\user\ArtisanDetails.jsx:247:href={`https://wa.me/${Artisan.phone?.replace(/^0/, "234")}`}
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:2:import { getArtisan } from "../../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:4:import ArtisanCard from "../../components/ArtisanCard";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:34:"Unable to load Artisan."
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:66:{ label: "Total Artisan", value: Artisan.length },
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:67:{ label: "Approved", value: approvedArtisan.length },
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:147:{!loading && approvedArtisan.length > 0 && (
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:150:Showing {approvedArtisan.length} Artisan
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:151:{approvedArtisan.length !== 1 ? "s" : ""}
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:159:{approvedArtisan.map((item) => {
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:162:<ArtisanCard
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:163:key={Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\user\Home.jsx:174:{!loading && approvedArtisan.length === 0 && (
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:2:import { getSavedArtisan } from "../../services/ArtisanService";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:4:import ArtisanCard from "../../components/ArtisanCard";
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:6:export default function SavedArtisan() {
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:15:const data = await getSavedArtisan();
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:19:setError("Failed to load saved Artisan.");
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:63:{!loading && Artisan.length > 0 && (
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:66:{Artisan.length} saved Artisan{Artisan.length !== 1 ? "s" : ""}
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:69:{Artisan.map((item) => {
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:72:<ArtisanCard
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:73:key={Artisan._id}
+C:\Users\HP\Documents\vendorly\client\src\pages\user\SavedArtisan.jsx:83:{!loading && Artisan.length === 0 && (
+C:\Users\HP\Documents\vendorly\client\src\services\ArtisanService.js:23:export const getSavedArtisan = async () => {
+C:\Users\HP\Documents\vendorly\client\src\App.jsx:18:import ArtisanDetails from "./pages/user/ArtisanDetails";
+C:\Users\HP\Documents\vendorly\client\src\App.jsx:19:import SavedArtisan from "./pages/user/SavedArtisan";
+C:\Users\HP\Documents\vendorly\client\src\App.jsx:103:<ArtisanDetails />
+C:\Users\HP\Documents\vendorly\client\src\App.jsx:111:<SavedArtisan />
+C:\Users\HP\Documents\vendorly\server\src\controllers\admin.controller.js:2:import Artisan from "../models/Artisan.js";
+C:\Users\HP\Documents\vendorly\server\src\controllers\admin.controller.js:16:Artisan.countDocuments(),
+C:\Users\HP\Documents\vendorly\server\src\controllers\admin.controller.js:17:Artisan.countDocuments({ status: "pending" }),
+C:\Users\HP\Documents\vendorly\server\src\controllers\admin.controller.js:18:Artisan.countDocuments({ status: "approved" }),
+C:\Users\HP\Documents\vendorly\server\src\controllers\admin.controller.js:19:Artisan.countDocuments({ status: "suspended" }),
+C:\Users\HP\Documents\vendorly\server\src\controllers\admin.controller.js:20:Artisan.countDocuments({ status: "rejected" }),
+C:\Users\HP\Documents\vendorly\server\src\controllers\appeal.controller.js:2:import Artisan from "../models/Artisan.js";
+C:\Users\HP\Documents\vendorly\server\src\controllers\appeal.controller.js:18:const Artisan = await Artisan.findOne({ _id: ArtisanId, ownerId: req.user._id });
+C:\Users\HP\Documents\vendorly\server\src\controllers\appeal.controller.js:22:if (!["suspended", "rejected"].includes(Artisan.status)) {
+C:\Users\HP\Documents\vendorly\server\src\controllers\appeal.controller.js:100:await Artisan.updateOne(
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:2:import Artisan from "../models/Artisan.js";
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:39:Artisan.find(filter).sort(sortObj).skip(skip).limit(limitNum),
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:40:Artisan.countDocuments(filter),
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:62:const Artisan = await Artisan.findOne({ _id: id, status: "approved" });
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:76:const Artisan = await Artisan.findById(id);
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:79:Artisan.status = "approved";
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:80:await Artisan.save();
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:96:const Artisan = await Artisan.findOne({ _id: ArtisanId, ownerId: req.user._id });
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:125:const Artisan = await Artisan.findOneAndUpdate(
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:150:const Artisan = await Artisan.findByIdAndUpdate(
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:166:const Artisan = await Artisan.findByIdAndDelete(id);
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:206:Artisan.find(filter).sort(sortObj).skip(skip).limit(limitNum),
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:207:Artisan.countDocuments(filter),
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:231:const Artisan = await Artisan.findById(id);
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:234:Artisan.status = "rejected";
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:236:if (reason) Artisan.moderationReason = reason;
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:238:await Artisan.save();
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:252:const Artisan = await Artisan.findById(id);
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:255:Artisan.status = "suspended";
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:256:if (reason) Artisan.moderationReason = reason;
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:258:await Artisan.save();
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:271:const Artisan = await Artisan.findById(id);
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:274:Artisan.status = "approved";
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:275:Artisan.moderationReason = ""; // clear reason after unsuspending (optional)
+C:\Users\HP\Documents\vendorly\server\src\controllers\Artisan.controller.js:277:await Artisan.save();
+C:\Users\HP\Documents\vendorly\server\src\controllers\auth.controller.js:4:import Artisan from "../models/Artisan.js";
+C:\Users\HP\Documents\vendorly\server\src\controllers\auth.controller.js:56:Artisan = await Artisan.create({
+C:\Users\HP\Documents\vendorly\server\src\controllers\auth.controller.js:66:user.ArtisanId = Artisan._id;
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:3:import Artisan from "../models/Artisan.js";
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:6:export async function getSavedArtisan(req, res) {
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:7:const user = await User.findById(req.user._id).populate("savedArtisanIds");
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:8:res.json({ items: user.savedArtisanIds || [] });
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:20:const Artisan = await Artisan.findOne({ _id: ArtisanId, status: "approved" });
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:26:{ $addToSet: { savedArtisanIds: ArtisanId } }
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:29:const updated = await User.findById(req.user._id).populate("savedArtisanIds");
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:33:items: updated.savedArtisanIds,
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:47:{ $pull: { savedArtisanIds: ArtisanId } }
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:50:const updated = await User.findById(req.user._id).populate("savedArtisanIds");
+C:\Users\HP\Documents\vendorly\server\src\controllers\saved.controller.js:54:items: updated.savedArtisanIds,
+C:\Users\HP\Documents\vendorly\server\src\models\User.js:29:savedArtisanIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "Artisan" }],
+C:\Users\HP\Documents\vendorly\server\src\routes\artisan.routes.js:16:} from "../controllers/Artisan.controller.js";
+C:\Users\HP\Documents\vendorly\server\src\routes\saved.routes.js:3:import { getSavedArtisan, saveArtisan, unsaveArtisan } from "../controllers/saved.controller.js";
+C:\Users\HP\Documents\vendorly\server\src\routes\saved.routes.js:7:router.get("/", auth, getSavedArtisan);
+C:\Users\HP\Documents\vendorly\server\src\seed\seedArtisans.js:3:import Artisan from "../models/Artisan.js";
+C:\Users\HP\Documents\vendorly\server\src\seed\seedArtisans.js:74:await Artisan.deleteMany({});
+C:\Users\HP\Documents\vendorly\server\src\seed\seedArtisans.js:99:await Artisan.insertMany(Artisan);
+C:\Users\HP\Documents\vendorly\server\package.json:10:"seed:Artisan": "node src/seed/seedArtisan.js"
+C:\Users\HP\Documents\vendorly\server\server.js:8:import ArtisanRoutes from "./src/routes/artisan.routes.js";
+C:\Users\HP\Documents\vendorly\server\server.js:34:app.use("/api/Artisan", ArtisanRoutes);
