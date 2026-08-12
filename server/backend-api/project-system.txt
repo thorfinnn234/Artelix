@@ -1,0 +1,42 @@
+                         ARTELIX
+                            │
+             ┌──────────────┴──────────────┐
+             │                             │
+        Mobile / Web                   Admin Web
+             │                             │
+     ┌───────┴────────┐                    │
+     │                │                    │
+ CUSTOMER          ARTISAN               ADMIN
+     │                │                    │
+     └────────────────┼────────────────────┘
+                      │
+                  BACKEND API
+                      │
+     ┌────────────────┼─────────────────┐
+     │                │                 │
+   AUTH            BUSINESS          REALTIME
+     │                │                 │
+     │         ┌──────┼──────┐          │
+     │         │      │      │          │
+     │       Jobs Payments Reviews   Messages
+     │
+     ├── Verification
+     │     ├── NIN
+     │     ├── BVN
+     │     ├── Bank
+     │     └── Address
+     │
+     ↓
+  DATABASE
+     │
+     ├── Users
+     ├── Artisan Profiles
+     ├── Services
+     ├── Portfolio
+     ├── Verification
+     ├── Jobs
+     ├── Payments
+     ├── Reviews
+     ├── Messages
+     ├── Disputes
+     └── Notifications

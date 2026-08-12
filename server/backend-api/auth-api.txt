@@ -1,0 +1,17 @@
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+
+POST   /api/auth/verify-email
+POST   /api/auth/verify-phone
+
+POST   /api/auth/forgot-password
+POST   /api/auth/reset-password
+
+GET    /api/auth/google
+GET    /api/auth/google/callback
+
+
+GET    /api/me
+PATCH  /api/me
+DELETE /api/me

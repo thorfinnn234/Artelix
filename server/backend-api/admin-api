@@ -1,0 +1,58 @@
+GET /api/admin/stats
+
+Users:
+GET   /api/admin/users
+GET   /api/admin/users/:userId
+
+PATCH /api/admin/users/:userId/suspend
+PATCH /api/admin/users/:userId/unsuspend
+PATCH /api/admin/users/:userId/ban
+
+Artisan:
+GET /api/admin/artisans
+
+GET /api/admin/artisans/:artisanId
+
+Verfication:
+GET /api/admin/verifications
+
+GET /api/admin/verifications/:artisanId
+
+PATCH /api/admin/artisans/:artisanId/approve
+
+PATCH /api/admin/artisans/:artisanId/reject
+
+Suspension:
+PATCH /api/admin/artisans/:artisanId/suspend
+
+PATCH /api/admin/artisans/:artisanId/unsuspend
+
+
+Jobs:
+GET /api/admin/jobs
+
+GET /api/admin/jobs/:jobId
+
+
+Payments:
+GET /api/admin/payments
+
+
+Withdrawals:
+GET   /api/admin/withdrawals
+
+PATCH /api/admin/withdrawals/:id/approve
+PATCH /api/admin/withdrawals/:id/reject
+
+Disputes:
+GET /api/admin/disputes
+
+GET /api/admin/disputes/:id
+
+PATCH /api/admin/disputes/:id/resolve
+
+Reports:
+
+GET /api/admin/reports
+
+PATCH /api/admin/reports/:id/resolve

@@ -1,0 +1,118 @@
+GET    /api/artisan/me
+PATCH  /api/artisan/me
+
+Services
+GET    /api/artisan/me/services
+POST   /api/artisan/me/services
+PATCH  /api/artisan/me/services/:serviceId
+DELETE /api/artisan/me/services/:serviceId
+
+
+Portfolio
+GET    /api/artisan/me/services
+POST   /api/artisan/me/services
+PATCH  /api/artisan/me/services/:serviceId
+DELETE /api/artisan/me/services/:serviceId
+
+Availability
+GET    /api/artisan/me/availability
+PATCH  /api/artisan/me/availability
+
+
+VERIFICATION
+GET    /api/artisan/me/verification
+POST   /api/artisan/me/verification/nin
+POST   /api/artisan/me/verification/bvn
+POST   /api/artisan/me/verification/bank
+POST   /api/artisan/me/verification/address
+POST   /api/artisan/me/verification/professional
+POST   /api/artisan/me/verification/documents
+DELETE /api/artisan/me/verification/documents/:id
+
+Location API
+GET    /api/artisan/me/location
+PATCH  /api/artisan/me/location
+
+
+Saved artisan
+GET    /api/me/saved-artisans
+
+POST   /api/me/saved-artisans/:artisanId
+
+DELETE /api/me/saved-artisans/:artisanId
+
+
+Job/ Booking System
+POST /api/jobs
+GET /api/me/jobs
+GET /api/me/jobs/:jobId
+GET /api/artisan/me/job-requests
+PATCH /api/artisan/jobs/:jobId/accept
+PATCH /api/artisan/jobs/:jobId/reject
+PATCH /api/artisan/jobs/:jobId/quote
+PATCH /api/artisan/jobs/:jobId/start
+PATCH /api/artisan/jobs/:jobId/complete
+PATCH /api/jobs/:jobId/confirm
+PATCH /api/jobs/:jobId/cancel
+
+REQUESTED
+     ↓
+QUOTED
+     ↓
+ACCEPTED
+     ↓
+PAYMENT_PENDING
+     ↓
+PAID
+     ↓
+IN_PROGRESS
+     ↓
+COMPLETED_BY_ARTISAN
+     ↓
+CONFIRMED_BY_CUSTOMER
+     ↓
+CLOSED
+
+
+
+REVIEWS
+
+POST /api/jobs/:jobId/review
+
+
+Messaging
+
+GET  /api/conversations
+
+POST /api/conversations/artisans/:artisanId
+
+GET  /api/conversations/:conversationId
+
+GET  /api/conversations/:conversationId/messages
+
+POST /api/conversations/:conversationId/messages
+
+
+Payments
+POST /api/payments/initialize
+
+POST /api/payments/verify
+
+GET  /api/me/payments
+
+Artisan
+
+GET /api/artisan/me/earnings
+GET /api/artisan/me/transactions
+
+POST /api/artisan/me/withdrawals
+GET  /api/artisan/me/withdrawals
+
+Disputes
+POST /api/jobs/:jobId/disputes
+
+GET /api/me/disputes
+
+GET /api/disputes/:disputeId
+
+POST /api/disputes/:disputeId/evidence

@@ -1,6 +1,6 @@
-# Artisyn (Monorepo)
+# Artelix (Monorepo)
 
-Artisyn is a Artisan listing platform with:
+Artelix is a Artisan listing platform with:
 - **Web App (React)** in `client/`
 - **Backend API (Node/Express + MongoDB)** in `server/`
 

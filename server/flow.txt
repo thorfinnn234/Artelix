@@ -1,0 +1,374 @@
+AUTH FLOWS
+
+Open App /
+│
+├── Not authenticated
+│   │
+│   └── /welcome
+│       ├── Login → /login
+│       ├── Register → /register
+│       │   │
+│       │   ├── Select Customer
+│       │   │   └── /register/user
+│       │   │       ├── Personal information
+│       │   │       ├── Phone verification
+│       │   │       ├── Location
+│       │   │       └── Pick avatar
+│       │   │
+│       │   └── Select Artisan
+│       │       └── /register/artisan
+│       │           ├── Personal information
+│       │           ├── Phone verification
+│       │           ├── Profession/category
+│       │           ├── Business information
+│       │           ├── Location
+│       │           └── Pick avatar
+│       │
+│       ├── Google Authentication
+│       │   └── /auth/google/callback
+│       │
+│       ├── Forgot Password
+│       │   └── /forgot-password
+│       │
+│       └── Reset Password
+│           └── /reset-password
+│
+└── Authenticated
+    │
+    ├── role = USER
+    │   └── /user/home
+    │
+    ├── role = ARTISAN
+    │   ├── onboarding incomplete
+    │   │   └── /artisan/onboarding
+    │   └── onboarding complete
+    │       └── /artisan/dashboard
+    │
+    └── role = ADMIN
+        └── /admin/dashboard
+
+
+USER FLOWS
+
+/user/home
+│
+├── Browse artisans
+│   ├── Search
+│   ├── Filter
+│   │   ├── Category
+│   │   ├── Location
+│   │   ├── Rating
+│   │   ├── Availability
+│   │   └── Verified only
+│   │
+│   └── Artisan Card
+│       └── /user/artisan/:artisanId
+│
+├── Artisan Profile
+│   └── /user/artisan/:artisanId
+│       ├── Profile information
+│       ├── Verification badges
+│       ├── Services
+│       ├── Starting prices
+│       ├── Location/service area
+│       ├── Portfolio
+│       ├── Ratings & reviews
+│       ├── Save / Unsave
+│       ├── Message Artisan
+│       └── Request Service
+│
+├── Request Service
+│   └── /user/request/:artisanId
+│       ├── Select service
+│       ├── Describe problem/job
+│       ├── Upload images
+│       ├── Select location
+│       ├── Select preferred date
+│       ├── Select preferred time
+│       └── Submit request
+│
+├── My Jobs
+│   └── /user/jobs
+│       ├── Pending
+│       ├── Accepted
+│       ├── In Progress
+│       ├── Completed
+│       ├── Cancelled
+│       └── Disputed
+│
+├── Job Details
+│   └── /user/jobs/:jobId
+│       ├── Artisan information
+│       ├── Job information
+│       ├── Job status
+│       ├── Agreed price
+│       ├── Payment
+│       ├── Message artisan
+│       ├── Cancel request
+│       ├── Confirm completion
+│       └── Open dispute
+│
+├── Saved Artisans
+│   └── /user/saved
+│
+├── Messages
+│   ├── /user/messages
+│   └── /user/messages/:conversationId
+│
+├── Payments
+│   └── /user/payments
+│
+├── Reviews
+│   └── /user/reviews
+│
+├── Notifications
+│   └── /user/notifications
+│
+├── Reports / Disputes
+│   └── /user/disputes
+│
+├── Profile
+│   └── /user/profile
+│       ├── Name
+│       ├── Avatar
+│       ├── Phone
+│       ├── Saved addresses
+│       └── Preferences
+│
+└── Settings
+    └── /user/settings
+
+
+
+
+ARTISAN FLOWS(Onboarding page)
+
+/artisan/onboarding
+│
+├── Step 1 — Personal Information
+│
+├── Step 2 — Professional Information
+│   ├── Profession
+│   ├── Categories
+│   ├── Skills
+│   ├── Years of experience
+│   └── About
+│
+├── Step 3 — Location
+│   ├── State
+│   ├── LGA
+│   ├── Area
+│   ├── Use current location
+│   └── Service radius
+│
+├── Step 4 — Services
+│   ├── Add services
+│   ├── Description
+│   ├── Starting price
+│   └── Estimated duration
+│
+├── Step 5 — Portfolio
+│   ├── Images
+│   ├── Videos
+│   └── Project descriptions
+│
+├── Step 6 — Identity Verification
+│   ├── NIN
+│   ├── Identity document where required
+│   └── Face/selfie verification
+│
+├── Step 7 — Bank Verification
+│   ├── BVN verification
+│   ├── Bank
+│   ├── Account number
+│   └── Account-name verification
+│
+├── Step 8 — Professional Verification
+│   ├── Certificate (optional depending on trade)
+│   ├── CAC document (optional)
+│   └── Professional association
+│
+└── Submit
+    ↓
+Verification Pending
+
+ARTISAN FLOWS(dashboard)
+
+/artisan/dashboard
+│
+├── Overview
+│   ├── New job requests
+│   ├── Active jobs
+│   ├── Completed jobs
+│   ├── Earnings
+│   ├── Rating
+│   ├── Profile views
+│   └── Verification status
+│
+├── Job Requests
+│   └── /artisan/requests
+│       ├── View request
+│       ├── Accept
+│       ├── Reject
+│       └── Propose price
+│
+├── Jobs
+│   └── /artisan/jobs
+│       ├── Upcoming
+│       ├── Active
+│       ├── Completed
+│       ├── Cancelled
+│       └── Disputed
+│
+├── Job Details
+│   └── /artisan/jobs/:jobId
+│       ├── Customer
+│       ├── Job details
+│       ├── Location
+│       ├── Agreed price
+│       ├── Message customer
+│       ├── Start job
+│       └── Mark completed
+│
+├── Services
+│   └── /artisan/services
+│       ├── Add
+│       ├── Edit
+│       ├── Disable
+│       └── Delete
+│
+├── Portfolio
+│   └── /artisan/portfolio
+│       ├── Add project
+│       ├── Upload media
+│       ├── Edit
+│       └── Delete
+│
+├── Availability
+│   └── /artisan/availability
+│       ├── Working days
+│       ├── Working hours
+│       └── Unavailable dates
+│
+├── Messages
+│   ├── /artisan/messages
+│   └── /artisan/messages/:conversationId
+│
+├── Earnings
+│   └── /artisan/earnings
+│       ├── Available balance
+│       ├── Pending balance
+│       ├── Transactions
+│       └── Withdraw
+│
+├── Reviews
+│   └── /artisan/reviews
+│
+├── Notifications
+│   └── /artisan/notifications
+│
+├── Verification
+│   └── /artisan/verification
+│       ├── Identity
+│       ├── Bank
+│       ├── Address
+│       └── Professional
+│
+├── Profile
+│   └── /artisan/profile
+│
+└── Settings
+    └── /artisan/settings
+
+
+
+
+ADMIN FLOWS
+
+/admin/dashboard
+│
+├── Platform Analytics
+│   ├── Total users
+│   ├── Total artisans
+│   ├── Verified artisans
+│   ├── Pending verification
+│   ├── Active jobs
+│   ├── Completed jobs
+│   ├── Total transaction volume
+│   ├── Platform revenue
+│   ├── Open disputes
+│   └── Pending withdrawals
+│
+├── Artisan Management
+│   └── /admin/artisans
+│       ├── All
+│       ├── Pending
+│       ├── Verified
+│       ├── Rejected
+│       ├── Suspended
+│       └── Deleted
+│
+├── Artisan Details
+│   └── /admin/artisans/:artisanId
+│       ├── Profile
+│       ├── NIN verification result
+│       ├── BVN verification result
+│       ├── Bank verification
+│       ├── Location
+│       ├── Documents
+│       ├── Portfolio
+│       ├── Jobs
+│       ├── Reviews
+│       ├── Reports
+│       ├── Approve
+│       ├── Reject
+│       ├── Suspend
+│       └── Ban
+│
+├── Verification Queue
+│   └── /admin/verifications
+│
+├── Users
+│   └── /admin/users
+│       ├── View
+│       ├── Suspend
+│       ├── Unsuspend
+│       └── Ban
+│
+├── Jobs
+│   └── /admin/jobs
+│
+├── Categories
+│   └── /admin/categories
+│       ├── Plumbing
+│       ├── Electrical
+│       ├── Carpentry
+│       └── etc.
+│
+├── Payments
+│   └── /admin/payments
+│
+├── Withdrawals
+│   └── /admin/withdrawals
+│
+├── Disputes
+│   └── /admin/disputes
+│       └── /admin/disputes/:id
+│
+├── Reports
+│   └── /admin/reports
+│
+├── Reviews
+│   └── /admin/reviews
+│
+├── Notifications
+│   └── /admin/notifications
+│
+├── Audit Logs
+│   └── /admin/audit-logs
+│
+└── Settings
+    └── /admin/settings
+
+
+
