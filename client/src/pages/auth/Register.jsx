@@ -31,9 +31,29 @@ export default function Register() {
   });
 
   const isStrongPassword = (pwd) =>
-    /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/.test(
+    /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{6,}$/.test(
       pwd,
     );
+
+  const passwordCharacterTypes = [
+    /[a-zA-Z]/.test(form.password),
+    /\d/.test(form.password),
+    /[^a-zA-Z0-9\s]/.test(form.password),
+  ].filter(Boolean).length;
+  const passwordStrength = !form.password
+    ? 0
+    : form.password.length >= 10 && isStrongPassword(form.password)
+      ? 3
+      : form.password.length >= 6 && passwordCharacterTypes >= 2
+        ? 2
+        : 1;
+  const strengthStyles = [
+    { label: "", bar: "", text: "" },
+    { label: "Weak", bar: "bg-red-500", text: "text-red-600 dark:text-red-400" },
+    { label: "Medium", bar: "bg-yellow-400", text: "text-yellow-700 dark:text-yellow-400" },
+    { label: "Strong", bar: "bg-green-500", text: "text-green-600 dark:text-green-400" },
+  ];
+  const strength = strengthStyles[passwordStrength];
 
   const categories = [
     "Hair Stylist",
@@ -288,6 +308,7 @@ export default function Register() {
                   <div className="relative">
                     <input
                       name="password"
+                      aria-describedby="password-guidance password-strength"
                       type={showPassword ? "text" : "password"}
                       value={form.password}
                       onChange={handleChange}
@@ -343,8 +364,34 @@ export default function Register() {
                       )}
                     </button>
                   </div>
-                  <p className="text-2xs text-gray-400 mt-1">
-                    Must include letters, numbers and a symbol
+                  {form.password && (
+                    <div className="mt-2">
+                      <div
+                        role="progressbar"
+                        aria-label="Password strength"
+                        aria-valuemin={0}
+                        aria-valuemax={3}
+                        aria-valuenow={passwordStrength}
+                        aria-valuetext={strength.label}
+                        className="h-1.5 overflow-hidden rounded-full bg-gray-200 dark:bg-dark-border"
+                      >
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 motion-reduce:transition-none ${strength.bar}`}
+                          style={{ width: `${(passwordStrength / 3) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <p
+                    id="password-strength"
+                    aria-live="polite"
+                    aria-atomic="true"
+                    className={`text-xs font-medium ${form.password ? "mt-1 " + strength.text : "sr-only"}`}
+                  >
+                    {form.password ? `Password strength: ${strength.label}` : ""}
+                  </p>
+                  <p id="password-guidance" className="text-2xs text-gray-400 mt-1">
+                    Must include letters, numbers and a symbol. Use at least 10 characters for a strong password.
                   </p>
                 </div>
 
