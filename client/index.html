@@ -8,21 +8,11 @@
     <!-- Initialize theme immediately to prevent flash -->
     <script>
       (function () {
-        const stored = localStorage.getItem("Artelix-theme") || localStorage.getItem("theme");
-        let theme = "light";
-
-        if (stored === "light" || stored === "dark") {
-          theme = stored;
-        } else {
-          const prefersDark = window.matchMedia(
-            "(prefers-color-scheme: dark)",
-          ).matches;
-          theme = prefersDark ? "dark" : "light";
-        }
-
-        if (theme === "dark") {
-          document.documentElement.classList.add("dark");
-        }
+        let stored;
+        try { stored = localStorage.getItem("Artelix-theme") || localStorage.getItem("theme"); } catch {}
+        const isDark = stored === "dark" || (stored !== "light" && window.matchMedia?.("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", Boolean(isDark));
+        document.documentElement.style.colorScheme = isDark ? "dark" : "light";
       })();
     </script>
   </head>

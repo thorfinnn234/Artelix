@@ -1,9 +1,12 @@
+import { CalendarDays } from "lucide-react";
+import { Brand } from "../components/SiteDesign";
 import { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ThemeToggle from "../components/ThemeToggle";
 
 const navLinks = [
+  { to: "/admin/bookings", label: "Bookings & disputes", icon: <CalendarDays className="w-5 h-5"/> },
   {
     to: "/admin/dashboard",
     label: "Dashboard",
@@ -145,15 +148,15 @@ export default function AdminLayout({ children, pendingCount = 0 }) {
   const handleLogout = () => { logout(); navigate("/login"); };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex min-w-0">
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-surface 
+    <div className="app-shell app-shell-admin min-h-screen bg-gray-50 dark:bg-dark-bg flex min-w-0">
+      <aside className={`app-sidebar fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-surface
                          border-r border-gray-100 dark:border-dark-border flex flex-col
                          transform transition-transform duration-300 lg:translate-x-0
                          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
 
         <div className="h-16 flex items-center px-6 border-b 
                         border-gray-100 dark:border-dark-border">
-          <h1 className="font-heading text-xl font-bold text-green-500">Artelix</h1>
+          <Brand to="/admin/dashboard"/>
           <span className="ml-2 text-2xs bg-red-50 dark:bg-red-500/10 
                            text-red-600 dark:text-red-400 font-semibold 
                            px-2 py-0.5 rounded-full">
@@ -204,10 +207,10 @@ export default function AdminLayout({ children, pendingCount = 0 }) {
       )}
 
       <div className="flex-1 flex flex-col lg:ml-64 min-w-0">
-        <header className="h-16 bg-white dark:bg-dark-surface border-b 
+        <header className="app-header h-16 bg-white dark:bg-dark-surface border-b
                            border-gray-100 dark:border-dark-border flex items-center 
                            justify-between gap-3 px-3 sm:px-4 lg:px-6 sticky top-0 z-30">
-          <button onClick={() => setSidebarOpen(true)}
+          <button aria-label="Open navigation" onClick={() => setSidebarOpen(true)}
                   className="lg:hidden p-2 rounded-md text-gray-500 
                              hover:bg-gray-100 dark:hover:bg-dark-card">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,7 +218,7 @@ export default function AdminLayout({ children, pendingCount = 0 }) {
                     d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="hidden lg:block" />
+          <div className="workspace-label hidden lg:flex"><span className="workspace-dot"/>The Artelix workspace</div>
           <div className="flex items-center gap-2 min-w-0">
             <ThemeToggle />
             <div className="ml-2">
@@ -223,7 +226,7 @@ export default function AdminLayout({ children, pendingCount = 0 }) {
             </div>
           </div>
         </header>
-        <main className="flex-1 min-w-0 p-3 sm:p-4 lg:p-6">{children}</main>
+        <main className="app-content flex-1 min-w-0 p-3 sm:p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );

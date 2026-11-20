@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 import Artisan from "../models/artisan.js";
+import User from "../models/User.js";
 import ArtisanRating from "../models/artisanRating.js";
 import ArtisanWork from "../models/artisanWork.js";
+import Notification from "../models/notification.js";
 import {
   cleanText,
   validateDetailedAddress,
@@ -15,6 +17,10 @@ function toAbsoluteWorkUrl(req, work) {
   };
 }
 
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 // ✅ GET /api/Artisan (public list)
 export async function listArtisan(req, res) {
   const {
@@ -23,6 +29,8 @@ export async function listArtisan(req, res) {
     page = "1",
     limit = "12",
     sort = "newest",
+    serviceArea = "",
+    available = "",
   } = req.query;
 
   const pageNum = Math.max(parseInt(page, 10) || 1, 1);
@@ -39,6 +47,17 @@ export async function listArtisan(req, res) {
   // Filter by category
   if (category.trim()) {
     filter.category = category.trim();
+  }
+
+  if (serviceArea.trim()) {
+    const area = serviceArea.trim();
+    if (area.length > 100) return res.status(400).json({ message: "Service area is too long." });
+    filter.serviceAreas = { $regex: escapeRegex(area), $options: "i" };
+  }
+
+  if (available === "true") filter.isAvailable = true;
+  if (available && !["true", "false"].includes(available)) {
+    return res.status(400).json({ message: "Availability filter must be true or false." });
   }
 
   // Sorting
@@ -133,51 +152,9 @@ export async function getArtisanWorks(req, res) {
 }
 
 export async function rateArtisan(req, res) {
-  const { id } = req.params;
-  const rating = Number(req.body.rating);
-
-  if (!mongoose.isValidObjectId(id)) {
-    return res.status(400).json({ message: "Invalid Artisan id" });
-  }
-
-  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-    return res.status(400).json({ message: "Rating must be a number from 1 to 5." });
-  }
-
-  const artisanDoc = await Artisan.findOne({ _id: id, status: "approved" });
-  if (!artisanDoc) return res.status(404).json({ message: "Artisan not found" });
-
-  await ArtisanRating.findOneAndUpdate(
-    { artisanId: id, userId: req.user._id },
-    { $set: { rating } },
-    { upsert: true, new: true, runValidators: true }
-  );
-
-  const stats = await ArtisanRating.aggregate([
-    { $match: { artisanId: artisanDoc._id } },
-    {
-      $group: {
-        _id: "$artisanId",
-        averageRating: { $avg: "$rating" },
-        ratingCount: { $sum: 1 },
-      },
-    },
-  ]);
-  const nextRating = stats[0]?.averageRating || 0;
-  const ratingCount = stats[0]?.ratingCount || 0;
-
-  artisanDoc.rating = Number(nextRating.toFixed(1));
-  await artisanDoc.save();
-
-  res.json({
-    message: "Rating saved",
-    rating: artisanDoc.rating,
-    ratingCount,
-    myRating: rating,
-  });
+  return res.status(409).json({ message: "Leave a verified review from your completed booking.", link: "/user/bookings" });
 }
 
-// ✅ PATCH /api/Artisan/:id/approve (admin only)
 export async function approveArtisan(req, res) {
   const { id } = req.params;
 
@@ -223,11 +200,23 @@ export async function updateMyArtisan(req, res) {
   }
 
   // Allow only editable fields
-  const allowed = ["name", "category", "phone", "address"];
+  const allowed = ["name", "category", "phone", "address", "isAvailable", "serviceAreas"];
   const updates = {};
 
   for (const key of allowed) {
-    if (req.body[key] !== undefined) updates[key] = cleanText(req.body[key]);
+    if (req.body[key] !== undefined) {
+      updates[key] = key === "isAvailable"
+        ? (req.body[key] === true || req.body[key] === "true")
+        : cleanText(req.body[key]);
+    }
+  }
+
+  if (req.body.serviceAreas !== undefined) {
+    const areas = Array.isArray(req.body.serviceAreas) ? req.body.serviceAreas : String(req.body.serviceAreas).split(",");
+    const normalized = [...new Set(areas.map(cleanText).filter(Boolean).map((area) => area.slice(0, 100)))];
+    if (normalized.length > 10) return res.status(400).json({ message: "Add up to 10 service areas." });
+    if (normalized.some((area) => area.length < 2)) return res.status(400).json({ message: "Each service area must be at least 2 characters." });
+    updates.serviceAreas = normalized;
   }
 
   if (updates.phone !== undefined) {
@@ -260,6 +249,60 @@ export async function updateMyArtisan(req, res) {
     return res.status(404).json({ message: "Artisan listing not found." });
 
   res.json({ message: "Artisan listing updated", Artisan: artisanDoc });
+}
+
+export async function requestVerification(req, res) {
+  const ArtisanId = req.user.ArtisanId;
+  if (!ArtisanId || !mongoose.isValidObjectId(ArtisanId)) {
+    return res.status(404).json({ message: "No artisan listing linked to this account." });
+  }
+  const account = await User.findById(req.user._id).select("isSuspended").lean();
+  if (!account || account.isSuspended) return res.status(403).json({ message: "Your account is suspended." });
+  const note = cleanText(req.body.note);
+  if (note.length < 20 || note.length > 1000) {
+    return res.status(400).json({ message: "Tell the review team about your qualifications in 20 to 1,000 characters." });
+  }
+  const artisan = await Artisan.findOne({ _id: ArtisanId, ownerId: req.user._id });
+  if (!artisan) return res.status(404).json({ message: "Artisan listing not found." });
+  if (artisan.verificationStatus === "verified") return res.status(409).json({ message: "Your listing is already verified." });
+  if (artisan.verificationStatus === "pending") return res.status(409).json({ message: "Your verification request is already under review." });
+  artisan.verificationStatus = "pending";
+  artisan.verificationNote = note;
+  artisan.verificationRequestedAt = new Date();
+  artisan.verifiedAt = null;
+  await artisan.save();
+  res.status(201).json({ message: "Verification request submitted for review.", Artisan: artisan });
+}
+
+export async function reviewVerification(req, res) {
+  const { id } = req.params;
+  const { decision, note = "" } = req.body;
+  if (!mongoose.isValidObjectId(id)) return res.status(400).json({ message: "Invalid artisan id." });
+  if (!['verified', 'rejected'].includes(decision)) return res.status(400).json({ message: "Choose verified or rejected." });
+  const reviewNote = cleanText(note);
+  if (decision === "rejected" && reviewNote.length < 5) {
+    return res.status(400).json({ message: "Add a clear reason when rejecting verification." });
+  }
+  if (reviewNote.length > 1000) return res.status(400).json({ message: "Review note cannot exceed 1,000 characters." });
+  const artisan = await Artisan.findById(id);
+  if (!artisan) return res.status(404).json({ message: "Artisan not found." });
+  if (artisan.verificationStatus !== "pending") return res.status(409).json({ message: "This listing has no pending verification request." });
+  artisan.verificationStatus = decision;
+  artisan.verificationNote = reviewNote;
+  artisan.verifiedAt = decision === "verified" ? new Date() : null;
+  await artisan.save();
+  try {
+    await Notification.create({
+      userId: artisan.ownerId,
+      type: "artisan",
+      title: decision === "verified" ? "Your listing is verified" : "Verification needs more information",
+      message: decision === "verified" ? "Artelix has verified your artisan listing." : reviewNote,
+      link: "/artisan/listing",
+    });
+  } catch (error) {
+    console.error("Verification notification failed:", error.message);
+  }
+  res.json({ message: `Verification ${decision}.`, Artisan: artisan });
 }
 
 // ✅ Admin: update any Artisan

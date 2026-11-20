@@ -1,3 +1,5 @@
+import ArtisanSuspensionAlert from "../components/ArtisanSuspensionAlert";
+import { Brand } from "../components/SiteDesign";
 import { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -38,7 +40,7 @@ const navLinks = [
   },
   {
     to: "/artisan/jobs",
-    label: "Job Requests",
+    label: "Bookings & requests",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -146,15 +148,15 @@ export default function ArtisanLayout({ children }) {
   const handleLogout = () => { logout(); navigate("/login"); };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex min-w-0">
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-surface 
+    <div className="app-shell app-shell-artisan min-h-screen bg-gray-50 dark:bg-dark-bg flex min-w-0">
+      <aside className={`app-sidebar fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-surface
                          border-r border-gray-100 dark:border-dark-border flex flex-col
                          transform transition-transform duration-300 lg:translate-x-0
                          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
 
         <div className="h-16 flex items-center px-6 border-b 
                         border-gray-100 dark:border-dark-border">
-          <h1 className="font-heading text-xl font-bold text-green-500">Artelix</h1>
+          <Brand to="/artisan/dashboard"/>
           <span className="ml-2 text-2xs bg-green-50 dark:bg-green-500/10 
                            text-green-600 dark:text-green-400 font-semibold 
                            px-2 py-0.5 rounded-full">
@@ -199,10 +201,10 @@ export default function ArtisanLayout({ children }) {
       )}
 
       <div className="flex-1 flex flex-col lg:ml-64 min-w-0">
-        <header className="h-16 bg-white dark:bg-dark-surface border-b 
+        <header className="app-header h-16 bg-white dark:bg-dark-surface border-b
                            border-gray-100 dark:border-dark-border flex items-center 
                            justify-between gap-3 px-3 sm:px-4 lg:px-6 sticky top-0 z-30">
-          <button onClick={() => setSidebarOpen(true)}
+          <button aria-label="Open navigation" onClick={() => setSidebarOpen(true)}
                   className="lg:hidden p-2 rounded-md text-gray-500 
                              hover:bg-gray-100 dark:hover:bg-dark-card">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,7 +212,7 @@ export default function ArtisanLayout({ children }) {
                     d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="hidden lg:block" />
+          <div className="workspace-label hidden lg:flex"><span className="workspace-dot"/>Your craft. Your workspace.</div>
           <div className="flex items-center gap-1 min-w-0">
             <NotificationDropdown />
             <MessageDropdown />
@@ -220,7 +222,7 @@ export default function ArtisanLayout({ children }) {
             </div>
           </div>
         </header>
-        <main className="flex-1 min-w-0 p-3 sm:p-4 lg:p-6">{children}</main>
+        <main className="app-content flex-1 min-w-0 p-3 sm:p-4 lg:p-6"><ArtisanSuspensionAlert/>{children}</main>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ArtisanLayout from "../../layouts/ArtisanLayout";
-import { getMyArtisan, updateMyArtisan } from "../../services/artisanService";
+import { getMyArtisan, requestArtisanVerification, updateMyArtisan } from "../../services/artisanService";
 import useLocation from "../../hooks/useLocation";
 
 const categories = [
@@ -56,6 +56,8 @@ export default function ArtisanListing() {
     category: "",
     phone: "",
     address: "",
+    isAvailable: true,
+    serviceAreas: "",
   });
 
   useEffect(() => {
@@ -68,6 +70,8 @@ export default function ArtisanListing() {
           category: v.category || "",
           phone: v.phone || "",
           address: v.address || "",
+          isAvailable: v.isAvailable !== false,
+          serviceAreas: (v.serviceAreas || []).join(", "),
         });
       })
       .catch(() => setError("Failed to load listing."))
@@ -75,7 +79,7 @@ export default function ArtisanListing() {
   }, []);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.type === "checkbox" ? e.target.checked : e.target.value });
     setError("");
     setSuccess("");
   };
@@ -95,7 +99,7 @@ export default function ArtisanListing() {
     e.preventDefault();
     setSaving(true);
     try {
-      const data = await updateMyArtisan(form);
+      const data = await updateMyArtisan({ ...form, serviceAreas: form.serviceAreas.split(",").map((area) => area.trim()).filter(Boolean) });
       setArtisan(data.Artisan || data);
       setSuccess("Listing updated successfully!");
       setEditing(false);
@@ -103,6 +107,24 @@ export default function ArtisanListing() {
       setError(err.response?.data?.message || "Update failed.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const [verificationNote, setVerificationNote] = useState("");
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const requestVerification = async (event) => {
+    event.preventDefault();
+    setVerificationLoading(true);
+    setError("");
+    try {
+      const data = await requestArtisanVerification(verificationNote);
+      setArtisan(data.Artisan || data.artisan);
+      setVerificationNote("");
+      setSuccess("Your verification request is now under review.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Unable to submit verification request.");
+    } finally {
+      setVerificationLoading(false);
     }
   };
 
@@ -194,6 +216,10 @@ export default function ArtisanListing() {
                 {form.phone || Artisan?.phone || "Your phone"}
               </span>
             </div>
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <span className={`text-2xs font-semibold px-2 py-0.5 rounded-full ${form.isAvailable ? "badge-active" : "badge-pending"}`}>{form.isAvailable ? "Available for work" : "Not accepting requests"}</span>
+              {Artisan?.verificationStatus === "verified" && <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-300">Artelix verified</span>}
+            </div>
           </div>
         </div>
 
@@ -271,6 +297,15 @@ export default function ArtisanListing() {
                   required
                   className="input"
                 />
+              </div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input name="isAvailable" type="checkbox" checked={form.isAvailable} onChange={handleChange} className="w-4 h-4 accent-green-500" />
+                <span><span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Available for new requests</span><span className="block text-xs text-gray-400 mt-0.5">Turn this off when you are fully booked.</span></span>
+              </label>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 block">Service areas</label>
+                <input name="serviceAreas" value={form.serviceAreas} onChange={handleChange} placeholder="e.g. Yaba, Surulere, Ikeja" className="input" />
+                <p className="text-2xs text-gray-400 mt-1">Separate up to 10 locations with commas so customers can find you nearby.</p>
               </div>
               <div>
                 <label
@@ -391,6 +426,11 @@ export default function ArtisanListing() {
               ))}
             </div>
           )}
+        </div>
+
+        <div className="card mt-4">
+          <h2 className="font-heading font-semibold text-gray-900 dark:text-gray-100">Artelix verification</h2>
+          {Artisan?.verificationStatus === "verified" ? <p className="text-sm text-green-600 dark:text-green-400 mt-2">Your listing was verified by Artelix {Artisan.verifiedAt ? `on ${new Date(Artisan.verifiedAt).toLocaleDateString("en-NG")}` : ""}.</p> : Artisan?.verificationStatus === "pending" ? <p className="text-sm text-amber-600 dark:text-amber-400 mt-2">Your verification request is under review. We will notify you when it is complete.</p> : <form onSubmit={requestVerification} className="mt-4 flex flex-col gap-3"><p className="text-sm text-gray-500 dark:text-gray-400">Tell our team about your training, qualifications or experience. A verified listing is distinct from an approved listing.</p><textarea value={verificationNote} onChange={(event) => setVerificationNote(event.target.value)} minLength={20} maxLength={1000} rows={4} required className="input resize-none" placeholder="Describe your qualifications and work experience…" /><button disabled={verificationLoading} className="btn-primary self-start">{verificationLoading ? "Submitting…" : "Request verification"}</button>{Artisan?.verificationStatus === "rejected" && Artisan?.verificationNote && <p className="text-sm text-red-600 dark:text-red-400">Last review: {Artisan.verificationNote}</p>}</form>}
         </div>
       </div>
     </ArtisanLayout>

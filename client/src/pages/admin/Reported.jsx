@@ -1,28 +1,19 @@
+import { useEffect, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
+import { getAdminReports, updateReport } from "../../services/reportService";
+
+const labels = { safety: "Safety concern", fraud: "Fraud or scam", harassment: "Harassment", poor_service: "Poor service", other: "Other" };
+const statuses = ["", "open", "reviewing", "resolved", "dismissed"];
 
 export default function AdminReported() {
-  return (
-    <AdminLayout>
-      <div className="mb-6">
-        <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Reported Artisan
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-          Artisan reported by users
-        </p>
-      </div>
-      <div className="flex flex-col items-center justify-center py-20">
-        <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 
-                        flex items-center justify-center mb-4 text-3xl">
-          🚩
-        </div>
-        <h3 className="font-heading font-semibold text-gray-900 dark:text-gray-100 mb-1">
-          No reported Artisan
-        </h3>
-        <p className="text-gray-400 text-sm text-center max-w-xs">
-          When users report Artisan they will appear here for review
-        </p>
-      </div>
-    </AdminLayout>
-  );
+  const [reports, setReports] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [modal, setModal] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const load = () => { setLoading(true); setError(""); getAdminReports({ status: filter || undefined }).then((data) => setReports(data.reports || [])).catch((err) => setError(err.response?.data?.message || "Unable to load reports.")).finally(() => setLoading(false)); };
+  useEffect(load, [filter]);
+  const resolve = async (event) => { event.preventDefault(); const form = new FormData(event.currentTarget); setSaving(true); try { await updateReport(modal._id, { status: form.get("status"), resolutionNote: form.get("resolutionNote") }); setModal(null); load(); } catch (err) { setError(err.response?.data?.message || "Unable to update report."); } finally { setSaving(false); } };
+  return <AdminLayout><div className="mb-6"><h1 className="page-title">Reports & safety</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Review user concerns, keep an audit trail, and send a clear response.</p></div><div className="flex flex-wrap items-center gap-2 mb-6">{statuses.map((status) => <button key={status || "all"} onClick={() => setFilter(status)} className={`px-3 py-2 rounded-full text-xs font-semibold capitalize ${filter === status ? "bg-green-500 text-white" : "bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-500"}`}>{status || "All reports"}</button>)}</div>{error && <p role="alert" className="booking-error">{error}</p>}{loading ? <div className="card" role="status">Loading reports…</div> : reports.length === 0 ? <div className="card text-center py-16"><h2 className="font-heading font-semibold">No reports found</h2><p className="text-sm text-gray-400 mt-1">Customer reports will appear here for review.</p></div> : <div className="grid gap-4">{reports.map((report) => <article className="card" key={report._id}><div className="flex flex-col sm:flex-row sm:justify-between gap-3"><div><p className="text-xs text-gray-400">Reporter: {report.reporterId?.fullName} · {report.reporterId?.email}</p><h2 className="font-heading font-semibold mt-1">{labels[report.category]} · {report.artisanId?.name || "Deleted artisan"}</h2></div><span className={`booking-status status-${report.status === "resolved" ? "completed" : report.status === "dismissed" ? "cancelled" : "requested"}`}>{report.status}</span></div><p className="booking-prose mt-3">{report.details}</p>{report.resolutionNote && <p className="text-sm bg-gray-50 dark:bg-dark-card rounded-lg p-3 mt-3"><strong>Previous response: </strong>{report.resolutionNote}</p>}<div className="flex justify-between items-center gap-3 mt-4"><span className="text-xs text-gray-400">{new Date(report.createdAt).toLocaleString("en-NG")}</span><button className="btn-outline text-xs" onClick={() => setModal(report)}>Review report</button></div></article>)}</div>}{modal && <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"><form onSubmit={resolve} className="bg-white dark:bg-dark-surface w-full max-w-md rounded-xl p-6"><h2 className="font-heading font-bold text-lg">Review report</h2><p className="text-sm text-gray-500 mt-2">{modal.artisanId?.name} · {labels[modal.category]}</p><label className="block text-sm font-semibold mt-4">Status<select name="status" defaultValue={modal.status} className="input mt-1"><option value="open">Open</option><option value="reviewing">Reviewing</option><option value="resolved">Resolved</option><option value="dismissed">Dismissed</option></select></label><label className="block text-sm font-semibold mt-4">Response to reporter<textarea name="resolutionNote" defaultValue={modal.resolutionNote} minLength={5} maxLength={4000} rows={4} className="input mt-1 resize-none" /></label><div className="flex gap-3 mt-5"><button type="button" className="btn-outline flex-1" onClick={() => setModal(null)}>Cancel</button><button disabled={saving} className="btn-primary flex-1">{saving ? "Saving…" : "Save review"}</button></div></form></div>}</AdminLayout>;
 }

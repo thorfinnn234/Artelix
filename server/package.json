@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "seed:artisan": "node src/seed/seedArtisans.js"
+    "seed:artisan": "node src/seed/seedArtisans.js",
+    "test:bookings": "node --test test/booking-policy.test.js test/booking-api.test.js"
   },
   "keywords": [],
   "author": "",

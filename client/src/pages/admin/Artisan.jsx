@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import {
   getAdminArtisan, approveArtisan, rejectArtisan,
-  suspendArtisan, unsuspendArtisan, deleteArtisan,
+  suspendArtisan, unsuspendArtisan, deleteArtisan, reviewArtisanVerification,
 } from "../../services/adminService";
 
 const STATUS_FILTERS = ["all", "approved", "pending", "suspended", "rejected"];
@@ -60,6 +60,8 @@ export default function AdminArtisan() {
       if (action === "suspend")   await suspendArtisan(id, reasonText);
       if (action === "unsuspend") await unsuspendArtisan(id);
       if (action === "delete")    await deleteArtisan(id);
+      if (action === "verify") await reviewArtisanVerification(id, "verified");
+      if (action === "verification-reject") await reviewArtisanVerification(id, "rejected", reasonText);
       setModal(null);
       setReason("");
       fetchArtisan();
@@ -113,7 +115,7 @@ export default function AdminArtisan() {
           <table className="w-full responsive-table">
             <thead>
               <tr className="border-b border-gray-100 dark:border-dark-border">
-                {["Artisan", "Category", "Phone", "Location", "Status", "Actions"].map((h) => (
+                {["Artisan", "Category", "Phone", "Location", "Status", "Verification", "Actions"].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-2xs font-semibold 
                                          text-gray-400 uppercase tracking-wider">
                     {h}
@@ -125,7 +127,7 @@ export default function AdminArtisan() {
               {loading ? (
                 [...Array(6)].map((_, i) => (
                   <tr key={i}>
-                    {[...Array(6)].map((_, j) => (
+                    {[...Array(7)].map((_, j) => (
                       <td key={j} className="px-4 py-3">
                         <div className="h-4 bg-gray-200 dark:bg-dark-border rounded" />
                       </td>
@@ -134,7 +136,7 @@ export default function AdminArtisan() {
                 ))
               ) : Artisan.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-gray-400 text-sm">
+                  <td colSpan={7} className="px-4 py-12 text-center text-gray-400 text-sm">
                     No Artisan found
                   </td>
                 </tr>
@@ -176,6 +178,9 @@ export default function AdminArtisan() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
+                    <span className={`text-2xs font-semibold px-2 py-0.5 rounded-full ${Artisan.verificationStatus === "verified" ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-300" : Artisan.verificationStatus === "pending" ? "badge-pending" : "bg-gray-100 dark:bg-dark-card text-gray-500 dark:text-gray-400"}`}>{Artisan.verificationStatus || "unverified"}</span>
+                  </td>
+                  <td className="px-4 py-3">
                     <div className="flex items-center gap-1 flex-wrap">
                       {Artisan.status === "pending" && (
                         <>
@@ -213,6 +218,7 @@ export default function AdminArtisan() {
                           Unsuspend
                         </button>
                       )}
+                      {Artisan.verificationStatus === "pending" && <><button onClick={() => setModal({ type: "verify", Artisan })} disabled={actionLoading === Artisan._id} className="text-xs bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-300 px-2.5 py-1.5 rounded-lg font-semibold disabled:opacity-40">Review verification</button><button onClick={() => setModal({ type: "verification-reject", Artisan })} className="text-xs bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 px-2.5 py-1.5 rounded-lg font-semibold">Reject verification</button></>}
                       <button onClick={() => setModal({ type: "delete", Artisan })}
                               className="text-xs bg-red-50 dark:bg-red-500/10 
                                          text-red-600 dark:text-red-400 px-2.5 py-1.5 
@@ -259,14 +265,26 @@ export default function AdminArtisan() {
             <h3 className="font-heading font-bold text-gray-900 dark:text-gray-100 mb-2">
               {modal.type === "delete"  ? "Delete Artisan" :
                modal.type === "reject"  ? "Reject Artisan" :
-               modal.type === "suspend" ? "Suspend Artisan" : ""}
+               modal.type === "suspend" ? "Suspend Artisan" :
+               modal.type === "verify" ? "Verify artisan listing" :
+               modal.type === "verification-reject" ? "Reject verification" : ""}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               {modal.type === "delete"
                 ? `Are you sure you want to delete "${modal.Artisan.name}"? This cannot be undone.`
-                : `Please provide a reason for ${modal.type}ing "${modal.Artisan.name}".`}
+                : modal.type === "verify"
+                  ? `Review ${modal.Artisan.name}'s qualification statement, then verify the listing if it meets Artelix standards.`
+                : modal.type === "verification-reject"
+                  ? `Explain what ${modal.Artisan.name} needs to provide for verification.`
+                  : `Please provide a reason for ${modal.type}ing "${modal.Artisan.name}".`}
             </p>
-            {modal.type !== "delete" && (
+            {(modal.type === "verify" || modal.type === "verification-reject") && modal.Artisan.verificationNote && (
+              <div className="mb-4 rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700 dark:border-dark-border dark:bg-dark-card dark:text-gray-200">
+                <span className="mb-1 block text-2xs font-semibold uppercase tracking-wider text-gray-400">Qualification statement</span>
+                {modal.Artisan.verificationNote}
+              </div>
+            )}
+            {modal.type !== "delete" && modal.type !== "verify" && (
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
@@ -285,12 +303,14 @@ export default function AdminArtisan() {
                 disabled={actionLoading === modal.Artisan._id}
                 className={`flex-1 py-2.5 rounded-md text-sm font-semibold text-white 
                            disabled:opacity-60 transition-colors
-                           ${modal.type === "delete" || modal.type === "reject"
+                           ${modal.type === "delete" || modal.type === "reject" || modal.type === "verification-reject"
                              ? "bg-red-500 hover:bg-red-600"
                              : "bg-amber-500 hover:bg-amber-600"}`}>
                 {actionLoading === modal.Artisan._id ? "Processing..." :
                   modal.type === "delete"  ? "Delete" :
-                  modal.type === "reject"  ? "Reject" : "Suspend"}
+                  modal.type === "reject"  ? "Reject" :
+                  modal.type === "verify" ? "Verify listing" :
+                  modal.type === "verification-reject" ? "Reject verification" : "Suspend"}
               </button>
             </div>
           </div>

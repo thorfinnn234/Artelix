@@ -51,7 +51,7 @@ export default function ArtisanCard({ Artisan, onSaveToggle }) {
     <>
       <div
         onClick={() => navigate(`/user/artisan/${Artisan._id}`)}
-        className="card cursor-pointer hover:border-green-500 
+        className="artisan-card card cursor-pointer hover:border-green-500
                    transition-all duration-200 group"
       >
         {/* Header */}
@@ -73,11 +73,14 @@ export default function ArtisanCard({ Artisan, onSaveToggle }) {
               <span className="badge-active text-2xs mt-0.5 inline-block">
                 {Artisan.category}
               </span>
+              {Artisan.verificationStatus === "verified" && <span className="text-2xs text-blue-600 dark:text-blue-300 font-semibold ml-1">Verified</span>}
             </div>
           </div>
 
           {/* Save button */}
           <button
+            aria-label={saved ? "Remove from saved artisans" : "Save artisan"}
+            aria-pressed={Boolean(saved)}
             onClick={handleSave}
             disabled={saving}
             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-card 
@@ -106,6 +109,11 @@ export default function ArtisanCard({ Artisan, onSaveToggle }) {
                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
           <span className="text-xs text-gray-400 truncate">{Artisan.address}</span>
+        </div>
+
+        <div className="mt-2">
+          <span className={`text-2xs font-semibold ${Artisan.isAvailable === false ? "text-amber-600 dark:text-amber-400" : "text-green-600 dark:text-green-400"}`}>{Artisan.isAvailable === false ? "Not accepting new requests" : "Available for requests"}</span>
+          {Artisan.serviceAreas?.length > 0 && <span className="text-2xs text-gray-400"> · {Artisan.serviceAreas.slice(0, 2).join(", ")}{Artisan.serviceAreas.length > 2 ? " + more" : ""}</span>}
         </div>
 
         {/* Footer */}

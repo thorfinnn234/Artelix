@@ -1,14 +1,10 @@
+import { listBookings, bookingLabel, bookingDate } from "../../services/bookingService";
+import { PageIntro } from "../../components/SiteDesign";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ArtisanLayout from "../../layouts/ArtisanLayout";
 import { getMyArtisan, getArtisan, getMyWorks } from "../../services/artisanService";
 import { useAuth } from "../../context/AuthContext";
-
-const DUMMY_JOBS = [
-  { id: 1, user: "Amara Okafor",  avatar: "Amara",  service: "Fix leaking pipe",    status: "pending",  time: "2 mins ago" },
-  { id: 2, user: "Chukwu Emeka", avatar: "Chukwu", service: "Install ceiling fan", status: "accepted", time: "1 hour ago" },
-  { id: 3, user: "Fatima Bello", avatar: "Fatima", service: "Full house wiring",   status: "done",     time: "3 hours ago" },
-];
 
 function StarRating({ rating }) {
   return (
@@ -29,6 +25,10 @@ function StarRating({ rating }) {
 }
 
 export default function ArtisanDashboard() {
+  const [bookings, setBookings] = useState([]);
+  const [bookingTotal, setBookingTotal] = useState(0);
+  const [bookingError, setBookingError] = useState("");
+  const [loadingBookings, setLoadingBookings] = useState(true);
   const { user }                    = useAuth();
   const [myArtisan, setMyArtisan]   = useState(null);  // ← renamed from Artisan
   const [artisanList, setArtisanList] = useState([]);  // ← new state for table
@@ -39,6 +39,9 @@ export default function ArtisanDashboard() {
   const [loadingWorks, setLoadingWorks]       = useState(true);
 
   useEffect(() => {
+    listBookings().then(data => { setBookings(data.bookings.slice(0,3)); setBookingTotal(data.total); })
+      .catch(() => setBookingError("Unable to load recent bookings. Open Bookings & requests to retry."))
+      .finally(() => setLoadingBookings(false));
     // Load my artisan profile
     getMyArtisan()
       .then((data) => setMyArtisan(data.artisan || data.Artisan || data))
@@ -66,37 +69,13 @@ export default function ArtisanDashboard() {
       .finally(() => setLoadingWorks(false));
   }, []);
 
-  const statusBadge = (status) => ({
-    pending:  "badge-pending",
-    accepted: "badge-active",
-    done:     "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-2xs font-semibold px-2.5 py-0.5 rounded-full",
-  }[status] || "badge-pending");
-
-  return (
+return (
     <ArtisanLayout>
 
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Artisan Dashboard
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            Manage your business on Artelix
-          </p>
-        </div>
-        <Link to="/artisan/listing"
-              className="btn-primary flex items-center gap-2 text-sm w-full sm:w-auto">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 4v16m8-8H4" />
-          </svg>
-          Manage Listing
-        </Link>
-      </div>
+      <PageIntro eyebrow="YOUR CRAFT. YOUR POSSIBILITIES." title={<>Great work starts<br/><span>with you.</span></>} description="Showcase your skills, manage your listing, and build your next connection."><Link to="/artisan/listing" className="btn-primary">Manage your listing <span aria-hidden="true">↗</span></Link></PageIntro>
 
       {/* Status Banner */}
-      {!loadingArtisan && myArtisan && myArtisan.status !== "approved" && (
+      {!loadingArtisan && myArtisan && ["pending", "rejected"].includes(myArtisan.status) && (
         <div className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2
                         ${myArtisan.status === "pending"
                           ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 border border-amber-200"
@@ -113,7 +92,7 @@ export default function ArtisanDashboard() {
         {[
           { label: "My Rating",      value: loadingArtisan ? "—" : `${myArtisan?.rating?.toFixed(1) || "0.0"}★` },
           { label: "Status",         value: loadingArtisan ? "—" : myArtisan?.status || "—" },
-          { label: "Job Requests",   value: DUMMY_JOBS.length },
+          { label: "Bookings",   value: loadingBookings ? "…" : bookingError ? "—" : bookingTotal },
           { label: "Previous Works", value: loadingWorks ? "—" : worksTotal },
         ].map((stat) => (
           <div key={stat.label} className="card">
@@ -203,29 +182,7 @@ export default function ArtisanDashboard() {
             </Link>
           </div>
           <div className="flex flex-col gap-3">
-            {DUMMY_JOBS.map((job) => (
-              <div key={job.id} className="card flex items-center gap-3 min-w-0">
-                <img
-                  src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${job.avatar}`}
-                  alt={job.user}
-                  className="w-10 h-10 rounded-full bg-green-50 border 
-                             border-gray-100 dark:border-dark-border shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 
-                                dark:text-gray-100 truncate">
-                    {job.user}
-                  </p>
-                  <p className="text-xs text-gray-400 truncate">{job.service}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span className={statusBadge(job.status)}>{job.status}</span>
-                  <span className="text-2xs text-gray-300 dark:text-gray-600">
-                    {job.time}
-                  </span>
-                </div>
-              </div>
-            ))}
+            {loadingBookings ? <p className="booking-muted">Loading bookings…</p> : bookingError ? <p role="alert" className="booking-error">{bookingError}</p> : bookings.length === 0 ? <div className="card"><p className="booking-muted">Your next booking request will appear here.</p></div> : bookings.map(job => <Link key={job._id} to={'/artisan/jobs?booking=' + job._id} className="card flex items-center justify-between gap-3"><div className="min-w-0"><p className="text-sm font-semibold truncate">{job.title}</p><p className="booking-muted">{job.customerId?.fullName} · {bookingDate(job.preferredAt)} WAT</p></div><span className={'booking-status status-' + job.status}>{bookingLabel(job.status)}</span></Link>)}
           </div>
         </div>
       </div>

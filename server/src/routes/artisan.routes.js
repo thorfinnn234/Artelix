@@ -16,6 +16,8 @@ import {
   suspendArtisan,
   rateArtisan,
   unsuspendArtisan,
+  requestVerification,
+  reviewVerification,
 } from "../controllers/artisan.controller.js";
 import {
   createMyWork,
@@ -28,6 +30,7 @@ router.get("/", optionalAuth, listArtisan);
 
 router.get("/me", auth, requireRole("artisan"), getMyArtisan);
 router.patch("/me", auth, requireRole("artisan"), updateMyArtisan);
+router.post("/me/verification-request", auth, requireRole("artisan"), requestVerification);
 router.get("/me/works", auth, requireRole("artisan"), getMyWorks);
 router.post(
   "/me/works",
@@ -53,5 +56,6 @@ router.delete("/:id", auth, requireRole("admin"), adminDeleteArtisan);
 router.patch("/:id/reject", auth, requireRole("admin"), rejectArtisan);
 router.patch("/:id/suspend", auth, requireRole("admin"), suspendArtisan);
 router.patch("/:id/unsuspend", auth, requireRole("admin"), unsuspendArtisan);
+router.patch("/:id/verification", auth, requireRole("admin"), reviewVerification);
 
 export default router;

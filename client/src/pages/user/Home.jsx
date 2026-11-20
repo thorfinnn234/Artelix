@@ -1,9 +1,11 @@
+import { PageIntro } from "../../components/SiteDesign";
 import { useState, useEffect, useCallback } from "react";
 import { getArtisan } from "../../services/artisanService";
 import UserLayout from "../../layouts/UserLayout";
 import ArtisanCard from "../../components/ArtisanCard";
 import SearchBar from "../../components/SearchBar";
 import CategoryFilter from "../../components/CategoryFilter";
+import { useAuth } from "../../context/AuthContext";
 
 export default function UserHome() {
   const [Artisan, setArtisan] = useState([]);
@@ -12,6 +14,9 @@ export default function UserHome() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [serviceArea, setServiceArea] = useState("");
+  const [availableOnly, setAvailableOnly] = useState(false);
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     total: 0,
     approved: 0,
@@ -28,6 +33,8 @@ export default function UserHome() {
         search: search || undefined,
         category: category || undefined,
         sort: sortBy || undefined,
+        serviceArea: serviceArea || undefined,
+        available: availableOnly ? "true" : undefined,
       };
 
       const data = await getArtisan(params);
@@ -55,7 +62,7 @@ export default function UserHome() {
     } finally {
       setLoading(false);
     }
-  }, [search, category, sortBy]);
+  }, [search, category, sortBy, serviceArea, availableOnly]);
 
   useEffect(() => {
     const timer = setTimeout(fetchArtisan, 400);
@@ -67,18 +74,7 @@ export default function UserHome() {
 
   return (
     <UserLayout>
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1
-          className="font-heading text-2xl font-bold text-gray-900 
-                       dark:text-gray-100"
-        >
-          Browse Artisan
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-          Find trusted professionals near you
-        </p>
-      </div>
+      <PageIntro eyebrow="GOOD HANDS ARE CLOSER THAN YOU THINK" title={<>Find the skill.<br/><span>Bring your idea to life.</span></>} description="Explore local talent, find your fit, and make your next project happen."/>
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
@@ -110,7 +106,7 @@ export default function UserHome() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="discovery-filters flex flex-col sm:flex-row gap-3 mb-6">
         <div className="flex-1">
           <SearchBar
             value={search}
@@ -132,6 +128,12 @@ export default function UserHome() {
             <option value="oldest">Oldest First</option>
           </select>
         </div>
+        <div className="sm:w-48">
+          <input value={serviceArea} onChange={(event) => setServiceArea(event.target.value)} className="input" placeholder={user?.location?.city ? `Near ${user.location.city}` : "Service area"} aria-label="Filter by service area" />
+        </div>
+        <label className="flex items-center gap-2 px-1 text-xs font-semibold text-gray-600 dark:text-gray-300 whitespace-nowrap cursor-pointer">
+          <input type="checkbox" checked={availableOnly} onChange={(event) => setAvailableOnly(event.target.checked)} className="w-4 h-4 accent-green-500" /> Available now
+        </label>
       </div>
 
       {/* Error */}
@@ -170,6 +172,7 @@ export default function UserHome() {
             Showing {approvedArtisan.length} Artisan
             {approvedArtisan.length !== 1 ? "s" : ""}
             {category ? ` in ${category}` : ""}
+            {serviceArea ? ` serving ${serviceArea}` : ""}
             {search ? ` matching "${search}"` : ""}
           </p>
           <div
@@ -218,7 +221,7 @@ export default function UserHome() {
             No Artisan found
           </h3>
           <p className="text-gray-400 text-sm text-center max-w-xs">
-            {search || category
+            {search || category || serviceArea || availableOnly
               ? "Try adjusting your search or filter"
               : "No approved Artisan yet. Check back soon!"}
           </p>
@@ -227,6 +230,8 @@ export default function UserHome() {
               onClick={() => {
                 setSearch("");
                 setCategory("");
+                setServiceArea("");
+                setAvailableOnly(false);
               }}
               className="btn-ghost mt-4 text-sm"
             >

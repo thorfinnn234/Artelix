@@ -1,3 +1,4 @@
+import Bookings from "./pages/shared/Bookings";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -53,6 +54,8 @@ function AppRoutes() {
 
   return (
     <Routes>
+      <Route path="/user/bookings" element={<ProtectedRoute role="user"><Bookings/></ProtectedRoute>}/>
+      <Route path="/admin/bookings" element={<ProtectedRoute role="admin"><Bookings/></ProtectedRoute>}/>
       {/* Root redirect based on auth status */}
       <Route path="/" element={
         user ? (

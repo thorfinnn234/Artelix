@@ -1,10 +1,10 @@
+import { AuthBrandPanel } from "../../components/SiteDesign";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../../services/authService";
 import { getApiAuthUrl } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import ThemeToggle from "../../components/ThemeToggle";
-import HeroIllustration from "../../assets/undraw_reviews_ukai.svg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -36,63 +36,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* LEFT — Green Branding Panel */}
-      <div
-        className="hidden lg:flex w-1/2 bg-green-500 flex-col items-center 
-                      justify-center px-12 relative overflow-hidden"
-      >
-        {/* Background circles */}
-        <div
-          className="absolute top-[-80px] left-[-80px] w-80 h-80 
-                        bg-green-600 rounded-full opacity-30"
-        />
-        <div
-          className="absolute bottom-[-60px] right-[-60px] w-64 h-64 
-                        bg-green-400 rounded-full opacity-20"
-        />
-
-        {/* Logo */}
-        <div className="relative z-10 text-center mb-10">
-          <h1 className="font-heading text-4xl font-bold text-white mb-2">
-            Artelix
-          </h1>
-          <p className="text-green-100 text-base">
-            Find trusted Artisan near you
-          </p>
-        </div>
-
-        {/* Illustration */}
-        <div className="relative z-10 w-full max-w-sm mb-10">
-          <img
-            src={HeroIllustration}
-            alt="Artelix illustration"
-            className="w-full"
-          />
-        </div>
-
-        {/* Stats */}
-        <div className="relative z-10 flex gap-8">
-          <div className="text-center">
-            <p className="font-heading text-3xl font-bold text-white">1,254</p>
-            <p className="text-green-100 text-xs mt-1">Registered Users</p>
-          </div>
-          <div className="w-px bg-green-400 opacity-50" />
-          <div className="text-center">
-            <p className="font-heading text-3xl font-bold text-white">99+</p>
-            <p className="text-green-100 text-xs mt-1">Verified Artisan</p>
-          </div>
-          <div className="w-px bg-green-400 opacity-50" />
-          <div className="text-center">
-            <p className="font-heading text-3xl font-bold text-white">4.8★</p>
-            <p className="text-green-100 text-xs mt-1">Avg. Rating</p>
-          </div>
-        </div>
-      </div>
-
+    <div className="auth-page min-h-screen flex">
+      <AuthBrandPanel/>
       {/* RIGHT — Form Panel */}
       <div
-        className="w-full lg:w-1/2 bg-gray-50 dark:bg-dark-bg flex 
+        className="auth-form-panel w-full lg:w-1/2 bg-gray-50 dark:bg-dark-bg flex
                       items-center justify-center px-6 py-10 relative"
       >
         {/* Theme Toggle */}
@@ -100,7 +48,7 @@ export default function Login() {
           <ThemeToggle />
         </div>
 
-        <div className="w-full max-w-md">
+        <div className="auth-form-content w-full max-w-md">
           {/* Mobile logo — only shows on small screens */}
           <div className="text-center mb-8 lg:hidden">
             <h1 className="font-heading text-3xl font-bold text-green-500">

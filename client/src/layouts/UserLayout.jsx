@@ -1,3 +1,5 @@
+import { CalendarDays } from "lucide-react";
+import { Brand } from "../components/SiteDesign";
 import { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -6,9 +8,10 @@ import NotificationDropdown from "../components/NotificationDropdown";
 import MessageDropdown from "../components/MessageDropdown";
 
 const navLinks = [
+  { to: "/user/bookings", label: "My bookings", icon: <CalendarDays className="w-5 h-5"/> },
   {
     to: "/user/home",
-    label: "Browse Artisan",
+    label: "Discover artisans",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -18,7 +21,7 @@ const navLinks = [
   },
   {
     to: "/user/saved",
-    label: "Saved Artisan",
+    label: "Saved artisans",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -192,10 +195,10 @@ export default function UserLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex min-w-0">
+    <div className="app-shell app-shell-user min-h-screen bg-gray-50 dark:bg-dark-bg flex min-w-0">
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-surface 
+      <aside className={`app-sidebar fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-surface
                          border-r border-gray-100 dark:border-dark-border flex flex-col
                          transform transition-transform duration-300 lg:translate-x-0
                          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
@@ -203,7 +206,7 @@ export default function UserLayout({ children }) {
         {/* Logo */}
         <div className="h-16 flex items-center px-6 border-b 
                         border-gray-100 dark:border-dark-border">
-          <h1 className="font-heading text-xl font-bold text-green-500">Artelix</h1>
+          <Brand to="/user/home"/>
         </div>
 
         {/* Nav Links */}
@@ -255,13 +258,13 @@ export default function UserLayout({ children }) {
       <div className="flex-1 flex flex-col lg:ml-64 min-w-0">
 
         {/* Header */}
-        <header className="h-16 bg-white dark:bg-dark-surface border-b 
+        <header className="app-header h-16 bg-white dark:bg-dark-surface border-b
                            border-gray-100 dark:border-dark-border flex items-center 
                            justify-between gap-3 px-3 sm:px-4 lg:px-6 sticky top-0 z-30">
 
           {/* Mobile menu */}
           <button
-            onClick={() => setSidebarOpen(true)}
+            aria-label="Open navigation" onClick={() => setSidebarOpen(true)}
             className="lg:hidden p-2 rounded-md text-gray-500 
                        hover:bg-gray-100 dark:hover:bg-dark-card"
           >
@@ -271,7 +274,7 @@ export default function UserLayout({ children }) {
             </svg>
           </button>
 
-          <div className="hidden lg:block" />
+          <div className="workspace-label hidden lg:flex"><span className="workspace-dot"/>Your next great connection</div>
 
           {/* Right side */}
           <div className="flex items-center gap-1 min-w-0">
@@ -285,7 +288,7 @@ export default function UserLayout({ children }) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 min-w-0 p-3 sm:p-4 lg:p-6">{children}</main>
+        <main className="app-content flex-1 min-w-0 p-3 sm:p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );

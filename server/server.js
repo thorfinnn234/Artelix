@@ -1,3 +1,4 @@
+import bookingRoutes from "./src/routes/booking.routes.js";
 import express from "express";
 import path from "path";
 import cors from "cors";
@@ -14,6 +15,7 @@ import notificationRoutes from "./src/routes/notification.routes.js";
 import { notFound, errorHandler } from "./src/middleware/errorHandler.js";
 import passport from "./src/config/passport.js";
 import adminRoutes from "./src/routes/admin.routes.js";
+import reportRoutes from "./src/routes/report.routes.js";
 
 
 
@@ -42,9 +44,11 @@ app.use("/api/artisan", artisanRoutes); // legacy route support
 app.use("/api/me/saved", savedRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/bookings", bookingRoutes);
 app.use("/api/artisan", appealRoutes);
 app.use("/api/artisan", appealRoutes); // legacy route support
 app.use("/api/admin", adminRoutes);
+app.use("/api/reports", reportRoutes);
 
 // Health check route
 app.get("/health", (_req, res) => {

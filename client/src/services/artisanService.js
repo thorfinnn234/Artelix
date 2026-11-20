@@ -30,6 +30,11 @@ export const updateMyArtisan = async (data) => {
   return res.data;
 };
 
+export const requestArtisanVerification = async (note) => {
+  const res = await api.post("/artisan/me/verification-request", { note });
+  return res.data;
+};
+
 export const getMyWorks = async (params) => {
   const res = await api.get("/artisan/me/works", { params });
   return res.data;

@@ -1,22 +1,37 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loginUser, registerUser } from "../services/authService";
 import { getApiAuthUrl } from "../services/api";
+import { ArrowUpRight, ArrowRight, Search, ShieldCheck, MessageCircle, Wrench, Zap, Scissors, Paintbrush, Hammer, Sparkles, Check, Bookmark } from "lucide-react";
+import "./Onboarding.css";
 import ThemeToggle from "../components/ThemeToggle";
 
-function StaticSection({ children, className = "" }) {
-  return <div className={className}>{children}</div>;
-}
 
 // Modal Component
-function AuthModal({ mode, onClose, onSwitch }) {
+function AuthModal({ mode, initialRole = "user", onClose, onSwitch }) {
+  const dialogRef = useRef(null);
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    const dialog = dialogRef.current;
+    const focusable = () => [...dialog.querySelectorAll('button, input, select, a[href]')].filter(el => !el.disabled && el.getClientRects().length);
+    focusable()[0]?.focus();
+    const trapFocus = (event) => {
+      if (event.key !== "Tab") return;
+      const elements = focusable();
+      const first = elements[0], last = elements[elements.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    dialog.addEventListener("keydown", trapFocus);
+    return () => { dialog.removeEventListener("keydown", trapFocus); previousFocus?.focus(); };
+  }, []);
   const navigate          = useNavigate();
   const { login }         = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole]   = useState("user");
+  const [role, setRole]   = useState(initialRole);
   const [step, setStep]   = useState(1);
   const [form, setForm]   = useState({
     fullName: "", email: "", password: "", confirmPassword: "",
@@ -57,6 +72,8 @@ function AuthModal({ mode, onClose, onSwitch }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (form.password !== form.confirmPassword) return setError("Passwords do not match.");
+    if (!isStrongPassword(form.password)) return setError("Password must include letters, numbers and a symbol.");
     setLoading(true);
     try {
       const payload = {
@@ -64,8 +81,8 @@ function AuthModal({ mode, onClose, onSwitch }) {
         email:    form.email,
         password: form.password,
         role,
-        ...(role === "Artisan" && {
-          Artisan: {
+        ...(role === "artisan" && {
+          artisan: {
             name:     form.businessName,
             category: form.category,
             phone:    form.phone,
@@ -107,16 +124,18 @@ function AuthModal({ mode, onClose, onSwitch }) {
 
   return (
     <div
+      ref={dialogRef} role="dialog" aria-modal="true" aria-label={mode === "login" ? "Log in" : "Create an account"}
       className="fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         className="bg-white dark:bg-dark-surface rounded-2xl w-full max-w-md 
-                   relative"
+                   relative max-h-[90dvh] overflow-y-auto"
       >
         {/* Close Button */}
         <button
+          aria-label="Close dialog"
           onClick={onClose}
           className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 
                      hover:bg-gray-100 dark:hover:bg-dark-card hover:text-gray-600 
@@ -219,7 +238,7 @@ function AuthModal({ mode, onClose, onSwitch }) {
             <>
               {/* Role Toggle */}
               <div className="flex bg-gray-100 dark:bg-dark-card rounded-lg p-1 mb-4">
-                {["user", "Artisan"].map((r) => (
+                {["user", "artisan"].map((r) => (
                   <button key={r} type="button" onClick={() => { setRole(r); setStep(1); }}
                           className={`flex-1 py-2 rounded-md text-sm font-semibold 
                                      transition-all duration-200 capitalize
@@ -255,7 +274,7 @@ function AuthModal({ mode, onClose, onSwitch }) {
 
               {/* Step 1 */}
               {step === 1 && (
-                <form onSubmit={role === "Artisan" ? handleNextStep : handleRegister}
+                <form onSubmit={role === "artisan" ? handleNextStep : handleRegister}
                       className="flex flex-col gap-4">
                   <div>
                     <label className="text-xs font-semibold text-gray-600 
@@ -319,7 +338,7 @@ function AuthModal({ mode, onClose, onSwitch }) {
 
                   <button type="submit" disabled={loading}
                           className="btn-primary w-full disabled:opacity-60">
-                    {role === "Artisan" ? "Next " : loading ? "Creating..." : "Create Account"}
+                    {role === "artisan" ? "Next " : loading ? "Creating..." : "Create Account"}
                   </button>
                 </form>
               )}
@@ -384,424 +403,57 @@ function AuthModal({ mode, onClose, onSwitch }) {
   );
 }
 
-// Main Onboarding Page
+const services = [
+  { name: "Plumbing", icon: Wrench, profession: "plumber" },
+  { name: "Electrical", icon: Zap, profession: "electrician" },
+  { name: "Carpentry", icon: Hammer, profession: "carpenter" },
+  { name: "Tailoring", icon: Scissors, profession: "tailor" },
+  { name: "Painting", icon: Paintbrush, profession: "painter" },
+  { name: "Cleaning", icon: Sparkles, profession: "cleaner" },
+];
 export default function Onboarding() {
-  const navigate        = useNavigate();
-  const { user }        = useAuth();
-  const [modal, setModal] = useState(null); // "login" | "register" | null
-  const [scrolled, setScrolled] = useState(false);
-
-  // Remove the user navigation logic - this should be handled by routing
-  // useEffect(() => {
-  //   if (user) {
-  //     if (user.role === "admin")       navigate("/admin/dashboard", { replace: true });
-  //     else if (user.role === "Artisan") navigate("/artisan/dashboard", { replace: true });
-  //     else                             navigate("/user/home",        { replace: true });
-  //   }
-  // }, [user]);
-
+  const [modal, setModal] = useState(null);
+  const [initialRole, setInitialRole] = useState("user");
+  const [selected, setSelected] = useState(0);
+  const openSignup = (role = "user") => { setInitialRole(role); setModal("register"); };
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const stats = [
-    { value: "1,254+", label: "Registered Users" },
-    { value: "52+",    label: "Verified Artisan" },
-    { value: "50+",    label: "Job Categories" },
-    { value: "4.8★",   label: "Average Rating" },
-  ];
-
-  const features = [
-    {
-      icon: "🔍",
-      title: "Browse & Discover",
-      desc: "Search Artisan by name, filter by category, and sort by rating. Find the right professional for any job.",
-    },
-    {
-      icon: "✅",
-      title: "Verified Artisan",
-      desc: "Every Artisan on Artelix goes through an approval process. Only trusted professionals make the cut.",
-    },
-    {
-      icon: "⭐",
-      title: "Ratings & Reviews",
-      desc: "Make informed decisions with real ratings from real users. See who's highly rated before you hire.",
-    },
-    {
-      icon: "💬",
-      title: "Direct Contact",
-      desc: "Call or WhatsApp Artisan directly from their profile. No middleman, no hidden fees.",
-    },
-    {
-      icon: "❤️",
-      title: "Save Favorites",
-      desc: "Bookmark Artisan you love and access them anytime from your saved Artisan list.",
-    },
-    {
-      icon: "🏢",
-      title: "List Your Business",
-      desc: "Are you a Artisan? Join Artelix and reach thousands of users looking for your services.",
-    },
-  ];
-
-  const steps = [
-    {
-      step: "01",
-      title: "Create your account",
-      desc: "Sign up as a user or Artisan in under 2 minutes. No credit card required.",
-    },
-    {
-      step: "02",
-      title: "Browse or list",
-      desc: "Users browse Artisan by category. Artisan create their profile and wait for approval.",
-    },
-    {
-      step: "03",
-      title: "Connect & get the job done",
-      desc: "Contact Artisan directly, hire them, and leave a review when the job is complete.",
-    },
-  ];
-
-  const testimonials = [
-    {
-      name: "Amara Okafor",
-      role: "User",
-      text: "Found a plumber within minutes. The verification process gives me peace of mind knowing I'm hiring a trusted professional.",
-      avatar: "Amara",
-    },
-    {
-      name: "Chukwu Emeka",
-      role: "Artisan — Electrician",
-      text: "Since joining Artelix, I've gotten more clients than ever. The platform is simple and my profile speaks for itself.",
-      avatar: "Chukwu",
-    },
-    {
-      name: "Fatima Bello",
-      role: "User",
-      text: "I love how easy it is to compare Artisan by rating. Saved me so much time finding the right tailor for my event.",
-      avatar: "Fatima",
-    },
-  ];
-
+    if (!modal) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKey = (event) => { if (event.key === "Escape") setModal(null); };
+    window.addEventListener("keydown", handleKey);
+    return () => { document.body.style.overflow = previous; window.removeEventListener("keydown", handleKey); };
+  }, [modal]);
+  const ServiceIcon = services[selected].icon;
   return (
-    <div className="min-h-screen bg-white dark:bg-dark-bg overflow-x-hidden">
-
-      {/* Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300
-                       ${scrolled
-                         ? "bg-white/90 dark:bg-dark-bg/90 backdrop-blur-md border-b border-gray-100 dark:border-dark-border"
-                         : "bg-transparent"
-                       }`}>
-        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-3">
-          <h1 className="font-heading text-xl font-bold text-green-500">Artelix</h1>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
-            <button onClick={() => setModal("login")}
-                    className="btn-outline text-xs sm:text-sm px-3 sm:px-4 py-2">
-              Log In
-            </button>
-            <button onClick={() => setModal("register")}
-                    className="btn-primary text-xs sm:text-sm px-3 sm:px-4 py-2">
-              Sign Up Free
-            </button>
+    <div className="onboarding" id="top">
+      <header className="ob-header">
+        <a className="ob-brand" href="#top" aria-label="Artelix home"><span className="ob-brand-mark"><Hammer size={21}/></span>artelix<span className="ob-brand-dot">.</span></a>
+        <nav className="ob-nav" aria-label="Main navigation"><a href="#services">Explore services</a><a href="#how-it-works">How it works</a><button onClick={() => openSignup("artisan")}>For artisans <ArrowUpRight size={14}/></button></nav>
+        <div className="ob-header-actions"><ThemeToggle/><button className="ob-login" onClick={() => setModal("login")}>Log in</button><button className="ob-button ob-small" onClick={() => openSignup()}>Get started <ArrowUpRight size={16}/></button></div>
+      </header>
+      <main>
+        <section className="ob-hero ob-container">
+          <div className="ob-hero-copy">
+            <div className="ob-eyebrow"><span/> LOCAL TALENT. REAL POSSIBILITIES.</div>
+            <h1>Good hands.<br/>Great work.<br/><span>Right near you.</span></h1>
+            <p>From the little fixes to the big ideas. Discover skilled artisans across Nigeria and connect with the right person to bring it all together.</p>
+            <div className="ob-hero-actions"><button className="ob-button" onClick={() => openSignup()}>Find your artisan <ArrowUpRight size={19}/></button><a className="ob-text-link" href="#how-it-works">See how it works <ArrowRight size={17}/></a></div>
+            <div className="ob-hero-assurances"><span><ShieldCheck size={17}/> Reviewed artisan profiles</span><span><Check size={17}/> Free to join</span></div>
           </div>
-        </div>
-      </nav>
-
-      {/* HERO SECTION */}
-      <section className="min-h-screen flex items-center justify-center relative 
-                          overflow-hidden pt-16">
-
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
-
-          {/* Badge */}
-          <div>
-            <div className="inline-flex items-center gap-2 bg-green-50 dark:bg-green-500/10 
-                            rounded-full px-3 sm:px-4 py-2 mb-8">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-              <span className="text-green-600 dark:text-green-400 text-xs sm:text-sm font-semibold">
-                Nigeria's Trusted Artisan Marketplace
-              </span>
-            </div>
+          <div className="ob-showcase" aria-label="Preview of finding an artisan">
+            <div className="ob-showcase-top"><span>SKILLS THAT MAKE A DIFFERENCE</span><span>0{selected+1} / 06</span></div>
+            <div className="ob-illustration"><div className="ob-orbit ob-orbit-one"/><div className="ob-orbit ob-orbit-two"/><span className="ob-float-tool ob-tool-one"><Hammer size={36}/></span><span className="ob-float-tool ob-tool-two"><Zap size={30}/></span><div className="ob-main-tool"><ServiceIcon size={96} strokeWidth={1.3}/></div><span className="ob-illustration-label">A little expertise.<br/>A lot of possibility.</span><span className="ob-spark" aria-hidden="true">✳</span></div>
+            <div className="ob-preview-card"><div className="ob-preview-heading"><span className="ob-preview-avatar"><ServiceIcon size={25}/></span><div><strong>Find your next {services[selected].profession}</strong><span>Discover local professionals</span></div><ShieldCheck className="ob-verified" size={25}/></div><div className="ob-preview-tags"><span>Explore profiles</span><span>Read reviews</span><span>Connect directly</span></div><button onClick={() => openSignup()} className="ob-preview-link">Find the right fit <ArrowUpRight size={17}/></button></div>
+            <div className="ob-floating-note"><span><Check size={16}/></span> Your next project starts here.</div>
           </div>
-
-          {/* Headline */}
-          <div>
-            <h1 className="font-heading text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 
-                           dark:text-gray-100 leading-tight mb-6">
-              Find Trusted
-              <span className="text-green-500"> Artisan</span>
-              <br />Near You
-            </h1>
-          </div>
-
-          {/* Subheadline */}
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg lg:text-xl 
-                          max-w-2xl mx-auto mb-10 leading-relaxed">
-              Connect with verified local professionals — plumbers, electricians,
-              tailors, cleaners and more. Browse ratings, contact directly, and
-              get the job done.
-            </p>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <button onClick={() => setModal("register")}
-                    className="btn-primary px-6 sm:px-8 py-3 sm:py-4 text-base">
-              Get Started — It's Free
-            </button>
-            <button onClick={() => setModal("login")}
-                    className="btn-outline px-6 sm:px-8 py-3 sm:py-4 text-base">
-              Log In to Your Account
-            </button>
-          </div>
-
-          {/* Artisan categories */}
-          <div>
-            <div className="flex flex-wrap justify-center gap-3">
-              {["Plumber", "Electrician", "Tailor", "Cleaner", "Barber", "Photographer"].map((cat) => (
-                <div key={cat}
-                     className="bg-white dark:bg-dark-card border border-gray-100 
-                                dark:border-dark-border rounded-full px-4 py-2 text-sm 
-                                font-medium text-gray-600 dark:text-gray-400">
-                  {cat}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* STATS SECTION */}
-      <section className="py-16 bg-green-500">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
-            {stats.map((stat) => (
-              <StaticSection key={stat.label} className="text-center">
-                <p className="font-heading text-3xl sm:text-4xl font-bold text-white mb-2">
-                  {stat.value}
-                </p>
-                <p className="text-green-100 text-sm">{stat.label}</p>
-              </StaticSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURES SECTION */}
-      <section className="py-24 bg-gray-50 dark:bg-dark-bg">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <StaticSection className="text-center mb-16">
-            <div className="inline-block bg-green-50 dark:bg-green-500/10 rounded-full 
-                            px-4 py-1.5 mb-4">
-              <span className="text-green-600 dark:text-green-400 text-sm font-semibold">
-                Everything you need
-              </span>
-            </div>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-gray-900 
-                           dark:text-gray-100 mb-4">
-              Why choose Artelix?
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg max-w-xl mx-auto">
-              We built Artelix to make finding and hiring local professionals
-              as simple as possible.
-            </p>
-          </StaticSection>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, i) => (
-              <StaticSection key={feature.title}>
-                <div className="bg-white dark:bg-dark-card border border-gray-100 
-                                dark:border-dark-border rounded-2xl p-6 
-                                hover:border-green-500 
-                                transition-all duration-200">
-                  <div className="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-500/10 
-                                  flex items-center justify-center text-2xl mb-4">
-                    {feature.icon}
-                  </div>
-                  <h3 className="font-heading font-semibold text-gray-900 
-                                 dark:text-gray-100 mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                    {feature.desc}
-                  </p>
-                </div>
-              </StaticSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="py-24 bg-white dark:bg-dark-surface">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <StaticSection className="text-center mb-16">
-            <div className="inline-block bg-green-50 dark:bg-green-500/10 rounded-full 
-                            px-4 py-1.5 mb-4">
-              <span className="text-green-600 dark:text-green-400 text-sm font-semibold">
-                Simple process
-              </span>
-            </div>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-gray-900 
-                           dark:text-gray-100 mb-4">
-              How it works
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg max-w-xl mx-auto">
-              Get started in minutes. No complicated setup required.
-            </p>
-          </StaticSection>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {steps.map((step, i) => (
-              <StaticSection key={step.step} className="relative">
-                {/* Connector line */}
-                {i < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-full w-full 
-                                  h-px bg-green-200 dark:bg-green-500/20 z-0 
-                                  -translate-x-1/2" />
-                )}
-                <div className="relative z-10 text-center lg:text-left">
-                  <div className="w-16 h-16 rounded-2xl bg-green-500 flex items-center 
-                                  justify-center mx-auto lg:mx-0 mb-4">
-                    <span className="font-heading text-white font-bold text-lg">
-                      {step.step}
-                    </span>
-                  </div>
-                  <h3 className="font-heading font-semibold text-gray-900 
-                                 dark:text-gray-100 mb-2 text-lg">
-                    {step.title}
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                    {step.desc}
-                  </p>
-                </div>
-              </StaticSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section className="py-24 bg-gray-50 dark:bg-dark-bg">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <StaticSection className="text-center mb-16">
-            <div className="inline-block bg-green-50 dark:bg-green-500/10 rounded-full 
-                            px-4 py-1.5 mb-4">
-              <span className="text-green-600 dark:text-green-400 text-sm font-semibold">
-                What people say
-              </span>
-            </div>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-gray-900 
-                           dark:text-gray-100 mb-4">
-              Trusted by users across Nigeria
-            </h2>
-          </StaticSection>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <StaticSection key={t.name}>
-                <div className="bg-white dark:bg-dark-card border border-gray-100 
-                                dark:border-dark-border rounded-2xl p-6">
-                  {/* Stars */}
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, s) => (
-                      <svg key={s} className="w-4 h-4 text-amber-400"
-                           fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm 
-                                leading-relaxed mb-5">
-                    "{t.text}"
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <img src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${t.avatar}`}
-                         alt={t.name}
-                         className="w-10 h-10 rounded-full bg-green-50 border 
-                                    border-gray-100 dark:border-dark-border" />
-                    <div>
-                      <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">
-                        {t.name}
-                      </p>
-                      <p className="text-2xs text-gray-400">{t.role}</p>
-                    </div>
-                  </div>
-                </div>
-              </StaticSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA SECTION */}
-      <section className="py-24 bg-green-500 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-0 w-64 h-64 rounded-full opacity-10"
-               style={{ background: "white", transform: "translate(-30%, -30%)" }} />
-          <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full opacity-10"
-               style={{ background: "white", transform: "translate(30%, 30%)" }} />
-        </div>
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center relative z-10">
-          <StaticSection>
-            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
-              Ready to get started?
-            </h2>
-            <p className="text-green-100 text-base sm:text-lg mb-10 max-w-xl mx-auto">
-              Join over 1,254 users and 52 verified Artisan already on Artelix.
-              It's completely free to sign up.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button onClick={() => setModal("register")}
-                      className="bg-white text-green-600 font-semibold px-8 py-4 
-                                 rounded-lg text-base hover:bg-green-50 transition-colors">
-                Create Free Account
-              </button>
-              <button onClick={() => setModal("login")}
-                      className="border-2 border-white text-white font-semibold 
-                                 px-8 py-4 rounded-lg text-base hover:bg-white/10 
-                                 transition-colors">
-                Log In
-              </button>
-            </div>
-          </StaticSection>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-white dark:bg-dark-surface border-t border-gray-100 
-                         dark:border-dark-border py-8">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row 
-                        items-center justify-between gap-4">
-          <h1 className="font-heading text-lg font-bold text-green-500">Artelix</h1>
-          <p className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} Artelix. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4">
-            <a href="/forgot-password"
-               className="text-gray-400 hover:text-gray-600 text-sm transition-colors">
-              Support
-            </a>
-            <button onClick={() => setModal("login")}
-                    className="text-green-500 font-semibold text-sm hover:underline">
-              Log In
-            </button>
-          </div>
-        </div>
-      </footer>
-
-      {/* Auth Modal */}
-      {modal && (
-        <AuthModal
-          mode={modal}
-          onClose={() => setModal(null)}
-          onSwitch={() => setModal(modal === "login" ? "register" : "login")}
-        />
-      )}
+        </section>
+        <section className="ob-services ob-container" id="services"><div className="ob-section-line"><div><span className="ob-kicker">MADE FOR YOUR EVERYDAY</span><h2>What can we help with?</h2></div><span className="ob-service-hint">A skill for every project.</span></div><div className="ob-service-grid">{services.map(({name, icon: Icon}, i) => <button key={name} className={`ob-service ${selected === i ? "is-selected" : ""}`} onClick={() => setSelected(i)} aria-pressed={selected === i}><Icon size={27} strokeWidth={1.5}/><span>{name}</span><ArrowUpRight size={15}/></button>)}</div></section>
+        <section className="ob-process" id="how-it-works"><div className="ob-container"><div className="ob-section-line"><div><span className="ob-kicker">LESS SEARCHING. MORE DOING.</span><h2>The right connection.<br/>In three simple steps.</h2></div><p>Finding someone for the job should be<br/> the easiest part of your project.</p></div><div className="ob-step-grid">{[{icon: Search, title: "Discover your match", text: "Create a free account and explore artisans by the skills you need."},{icon: Bookmark, title: "Find your confidence", text: "Explore their work, compare reviews, and save the profiles you love."},{icon: MessageCircle, title: "Make it happen", text: "Connect directly, discuss your project, and agree on the details together."}].map(({icon: Icon, title, text}, i) => <article className="ob-step" key={title}><div className="ob-step-top"><Icon size={25} strokeWidth={1.5}/><span>0{i+1}</span></div><h3>{title}</h3><p>{text}</p></article>)}</div></div></section>
+        <section className="ob-artisan ob-container"><div><span className="ob-kicker">FOR THE HANDS BEHIND THE WORK</span><h2>Your craft deserves<br/>to be discovered.</h2><p>Give your skills a home. Create your artisan profile, showcase your work, and help new customers find you.</p><button className="ob-button" onClick={() => openSignup("artisan")}>Join as an artisan <ArrowUpRight size={18}/></button></div><div className="ob-artisan-art" aria-hidden="true"><span className="ob-craft-word">Made with<br/><em>skill.</em></span><span className="ob-craft-stamp"><Wrench size={26}/> LOCAL SKILLS<br/> BIG POTENTIAL</span></div></section>
+      </main>
+      <footer className="ob-footer ob-container"><a className="ob-brand" href="#top">artelix<span className="ob-brand-dot">.</span></a><p>Connecting people. Celebrating craft.</p><span>© {new Date().getFullYear()} Artelix</span><a href="/forgot-password">Account support <ArrowUpRight size={14}/></a></footer>
+      {modal && <AuthModal key={modal} mode={modal} initialRole={initialRole} onClose={() => setModal(null)} onSwitch={() => setModal(modal === "login" ? "register" : "login")}/>}
     </div>
   );
 }

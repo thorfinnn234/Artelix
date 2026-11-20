@@ -3,12 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   getArtisanById,
   getArtisanWorks,
-  rateArtisan,
   saveArtisan,
   unsaveArtisan,
 } from "../../services/artisanService";
 import { startArtisanConversation } from "../../services/messageService";
 import UserLayout from "../../layouts/UserLayout";
+import { createReport } from "../../services/reportService";
 
 function StarRating({ rating, size = "w-5 h-5" }) {
   return (
@@ -49,11 +49,12 @@ export default function ArtisanDetails() {
   const [worksLoading, setWorksLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [selectedRating, setSelectedRating] = useState(0);
-  const [ratingSaving, setRatingSaving] = useState(false);
   const [messageStarting, setMessageStarting] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reporting, setReporting] = useState(false);
+  const [reportMessage, setReportMessage] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -66,7 +67,6 @@ export default function ArtisanDetails() {
         const nextArtisan = data.Artisan || data.artisan || data;
         setArtisan(nextArtisan);
         setSaved(Boolean(nextArtisan.isSaved));
-        setSelectedRating(nextArtisan.myRating || 0);
       })
       .catch(() => setError("Artisan not found."))
       .finally(() => setLoading(false));
@@ -99,27 +99,6 @@ export default function ArtisanDetails() {
     }
   };
 
-  const handleRating = async (rating) => {
-    if (ratingSaving || !artisan) return;
-    setSelectedRating(rating);
-    setRatingSaving(true);
-    setMessage("");
-
-    try {
-      const data = await rateArtisan(artisan._id, rating);
-      setArtisan((current) => ({
-        ...current,
-        rating: data.rating,
-        ratingCount: data.ratingCount,
-        myRating: data.myRating,
-      }));
-      setMessage("Rating saved.");
-    } catch (err) {
-      setMessage(err?.response?.data?.message || "Unable to save rating.");
-    } finally {
-      setRatingSaving(false);
-    }
-  };
 
   const handleStartMessage = async () => {
     if (!artisan || messageStarting) return;
@@ -133,6 +112,23 @@ export default function ArtisanDetails() {
       setMessage(err?.response?.data?.message || "Unable to start conversation.");
     } finally {
       setMessageStarting(false);
+    }
+  };
+
+  const handleReport = async (event) => {
+    event.preventDefault();
+    if (reporting) return;
+    const form = new FormData(event.currentTarget);
+    setReporting(true);
+    setReportMessage("");
+    try {
+      await createReport({ artisanId: artisan._id, category: form.get("category"), details: form.get("details") });
+      setReportOpen(false);
+      setReportMessage("Your report has been sent. Artelix will update you after review.");
+    } catch (err) {
+      setReportMessage(err.response?.data?.message || "Unable to submit your report.");
+    } finally {
+      setReporting(false);
     }
   };
 
@@ -182,7 +178,9 @@ export default function ArtisanDetails() {
             {message}
           </div>
         )}
+        {reportMessage && <div role="status" className="text-sm text-green-600 dark:text-green-400 mb-6">{reportMessage}</div>}
 
+        <div className="booking-profile-cta card mb-6"><div><span className="site-eyebrow">HAVE A PROJECT IN MIND?</span><h2>Let's get your project started.</h2><p className="booking-muted">Send the details, receive a quote, and agree on the work together.</p></div><button className="btn-primary" disabled={artisan.status !== "approved" || artisan.isAvailable === false} onClick={() => navigate('/user/bookings?artisan=' + artisan._id)}>{artisan.isAvailable === false ? "Not accepting requests" : "Request a service ↗"}</button></div>
         <div className="card mb-6">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             <div className="flex items-start gap-4 min-w-0">
@@ -198,6 +196,7 @@ export default function ArtisanDetails() {
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   <span className="badge-active">{artisan.category}</span>
                   <span className="text-xs text-gray-400 capitalize">{artisan.status}</span>
+                  {artisan.verificationStatus === "verified" && <span className="text-xs font-semibold text-blue-600 dark:text-blue-300">Artelix verified</span>}
                 </div>
                 <div className="flex items-center gap-2 mt-3">
                   <StarRating rating={artisan.rating || 0} />
@@ -239,6 +238,8 @@ export default function ArtisanDetails() {
                 { label: "Phone", value: artisan.phone },
                 { label: "Address", value: artisan.address },
                 { label: "Category", value: artisan.category },
+                { label: "Service areas", value: artisan.serviceAreas?.join(", ") },
+                { label: "Availability", value: artisan.isAvailable === false ? "Not accepting requests" : "Available for requests" },
                 { label: "Member Since", value: formatDate(artisan.createdAt) },
               ].map((item) => (
                 <div key={item.label} className="p-3 rounded-lg bg-gray-50 dark:bg-dark-card">
@@ -255,35 +256,12 @@ export default function ArtisanDetails() {
 
           <div className="card">
             <h2 className="font-heading font-semibold text-gray-900 dark:text-gray-100 mb-3">
-              Rate This Artisan
+              Leave a verified review
             </h2>
             <p className="text-xs text-gray-400 mb-4">
-              Your rating is saved and updates their profile average.
+              Reviews are available after you confirm a booking is complete.
             </p>
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              {[1, 2, 3, 4, 5].map((rating) => (
-                <button
-                  key={rating}
-                  type="button"
-                  onClick={() => handleRating(rating)}
-                  disabled={ratingSaving}
-                  className="p-1 rounded hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors"
-                  aria-label={`Rate ${rating} star${rating === 1 ? "" : "s"}`}
-                >
-                  <svg
-                    className={`w-7 h-7 ${
-                      rating <= selectedRating
-                        ? "text-amber-400"
-                        : "text-gray-200 dark:text-gray-600"
-                    }`}
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                </button>
-              ))}
-            </div>
+            <button type="button" className="btn-outline mb-4" onClick={() => navigate("/user/bookings?status=completed")}>Review a completed booking</button>
             <div className="flex flex-col gap-2">
               <button
                 type="button"
@@ -304,9 +282,11 @@ export default function ArtisanDetails() {
               >
                 WhatsApp
               </a>
+              <button type="button" className="text-xs text-red-500 hover:underline text-left mt-2" onClick={() => { setReportOpen(true); setReportMessage(""); }}>Report this listing</button>
             </div>
           </div>
         </div>
+        {reportOpen && <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={(event) => event.target === event.currentTarget && setReportOpen(false)}><form onSubmit={handleReport} className="bg-white dark:bg-dark-surface rounded-xl p-6 w-full max-w-md"><h2 className="font-heading text-xl font-bold">Report this listing</h2><p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Reports go to the Artelix review team. Provide factual details so we can investigate.</p><label className="block text-sm font-semibold mt-4">Category<select name="category" required className="input mt-1"><option value="">Choose a category</option><option value="safety">Safety concern</option><option value="fraud">Fraud or scam</option><option value="harassment">Harassment</option><option value="poor_service">Poor service</option><option value="other">Other</option></select></label><label className="block text-sm font-semibold mt-4">What happened?<textarea name="details" minLength={15} maxLength={4000} rows={5} required className="input mt-1 resize-none" /></label><div className="flex gap-3 mt-5"><button type="button" className="btn-outline flex-1" onClick={() => setReportOpen(false)}>Cancel</button><button className="btn-primary flex-1" disabled={reporting}>{reporting ? "Sending…" : "Send report"}</button></div></form></div>}
 
         <div className="mb-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">

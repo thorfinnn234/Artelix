@@ -50,3 +50,6 @@ Thumbs.db
 ```bash
 cd server
 npm install
+
+# Private booking photo attachments
+server/storage/booking-photos/

@@ -30,6 +30,11 @@ export const unsuspendArtisan = async (id) => {
   return res.data;
 };
 
+export const reviewArtisanVerification = async (id, decision, note = "") => {
+  const res = await api.patch(`/artisan/${id}/verification`, { decision, note });
+  return res.data;
+};
+
 export const deleteArtisan = async (id) => {
   const res = await api.delete(`/artisan/${id}`);
   return res.data;

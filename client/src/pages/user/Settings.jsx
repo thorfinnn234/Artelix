@@ -1,3 +1,4 @@
+import ThemeToggle from "../../components/ThemeToggle";
 import UserLayout from "../../layouts/UserLayout";
 import { useAuth } from "../../context/AuthContext";
 
@@ -47,6 +48,7 @@ export default function UserSettings() {
           </div>
         </div>
       </div>
+    <section className="card appearance-panel"><div><h2>Make yourself at home.</h2><p>Switch between light and dark. Your preference is saved on this device.</p></div><ThemeToggle/></section>
     </UserLayout>
   );
 }

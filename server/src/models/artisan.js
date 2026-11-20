@@ -25,6 +25,22 @@ const Artisanchema = new mongoose.Schema(
       default: "pending",
     },
 
+    // Availability and service coverage are set by the artisan and drive
+    // marketplace discovery. They are separate from moderation status.
+    isAvailable: { type: Boolean, default: true },
+    serviceAreas: [{ type: String, trim: true, maxlength: 100 }],
+
+    // "verified" means an Artelix administrator has reviewed the artisan's
+    // verification request. It does not replace listing approval.
+    verificationStatus: {
+      type: String,
+      enum: ["unverified", "pending", "verified", "rejected"],
+      default: "unverified",
+    },
+    verificationNote: { type: String, default: "", maxlength: 1000 },
+    verificationRequestedAt: { type: Date, default: null },
+    verifiedAt: { type: Date, default: null },
+
     // ✅ moved outside status
     moderationReason: { type: String, default: "" },
   },
@@ -35,5 +51,7 @@ const Artisanchema = new mongoose.Schema(
 Artisanchema.index({ status: 1 });
 Artisanchema.index({ category: 1 });
 Artisanchema.index({ name: "text" });
+Artisanchema.index({ status: 1, isAvailable: 1 });
+Artisanchema.index({ serviceAreas: 1 });
 
 export default mongoose.model("Artisan", Artisanchema);

@@ -1,3 +1,4 @@
+import ThemeToggle from "../../components/ThemeToggle";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -92,6 +93,7 @@ export default function AvatarPicker() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
+      <div className="flex justify-end px-6 pt-5"><ThemeToggle/></div>
       {/* Header */}
       <div
         className="bg-white dark:bg-dark-surface border-b 

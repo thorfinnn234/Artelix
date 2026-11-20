@@ -1,3 +1,4 @@
+import { PageIntro } from "../../components/SiteDesign";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import AdminLayout from "../../layouts/AdminLayout";
@@ -85,14 +86,7 @@ export default function AdminDashboard() {
   return (
     <AdminLayout pendingCount={stats?.pendingArtisan || 0}>
 
-      <div className="mb-6">
-        <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Admin Dashboard
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-          Overview of Artelix platform
-        </p>
-      </div>
+      <PageIntro eyebrow="THE BIG PICTURE" title={<>A thriving community.<br/><span>In good hands.</span></>} description="Keep an eye on your platform, support your artisans, and make every connection count."/>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">

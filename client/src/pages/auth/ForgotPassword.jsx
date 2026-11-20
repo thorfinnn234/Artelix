@@ -1,8 +1,8 @@
+import { AuthBrandPanel } from "../../components/SiteDesign";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import ThemeToggle from "../../components/ThemeToggle";
-import HeroIllustration from "../../assets/undraw_reviews_ukai.svg";
 
 export default function ForgotPassword() {
   const navigate              = useNavigate();
@@ -30,38 +30,18 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="auth-page min-h-screen flex">
 
-      {/* LEFT — Green Branding Panel */}
-      <div className="hidden lg:flex w-1/2 bg-green-500 flex-col items-center 
-                      justify-center px-12 relative overflow-hidden">
-        <div className="absolute top-[-80px] left-[-80px] w-80 h-80 
-                        bg-green-600 rounded-full opacity-30" />
-        <div className="absolute bottom-[-60px] right-[-60px] w-64 h-64 
-                        bg-green-400 rounded-full opacity-20" />
-        <div className="relative z-10 text-center mb-10">
-          <h1 className="font-heading text-4xl font-bold text-white mb-2">
-            Artelix
-          </h1>
-          <p className="text-green-100 text-base">
-            Your trusted Artisan marketplace
-          </p>
-        </div>
-        <div className="relative z-10 w-full max-w-sm">
-          <img src={HeroIllustration} alt="Artelix"
-               className="w-full" />
-        </div>
-      </div>
-
+      <AuthBrandPanel/>
       {/* RIGHT — Form Panel */}
-      <div className="w-full lg:w-1/2 bg-gray-50 dark:bg-dark-bg flex 
+      <div className="auth-form-panel w-full lg:w-1/2 bg-gray-50 dark:bg-dark-bg flex
                       items-center justify-center px-6 py-10 relative">
 
         <div className="absolute top-4 right-4">
           <ThemeToggle />
         </div>
 
-        <div className="w-full max-w-md">
+        <div className="auth-form-content w-full max-w-md">
 
           {/* Mobile logo */}
           <div className="text-center mb-8 lg:hidden">

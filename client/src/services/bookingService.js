@@ -1,0 +1,13 @@
+﻿import api from "./api";
+export const bookingStatuses = ["requested", "quoted", "confirmed", "in_progress", "awaiting_confirmation", "completed", "declined", "expired", "cancelled", "disputed"];
+export const bookingLabel = value => value.replaceAll("_", " ");
+export const bookingDate = value => value ? new Date(value).toLocaleString("en-NG", { timeZone: "Africa/Lagos", dateStyle: "medium", timeStyle: "short" }) : "Not set";
+export const bookingMoney = value => value == null ? "Not specified" : new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(value);
+export const bookingInputDate = value => value ? new Date(new Date(value).getTime() + 3600000).toISOString().slice(0,16) : "";
+export const bookingISO = value => value ? new Date(`${value}:00+01:00`).toISOString() : "";
+export const listBookings = async params => (await api.get("/bookings", { params })).data;
+export const getBooking = async id => (await api.get(`/bookings/${id}`)).data;
+export const createBooking = async form => (await api.post("/bookings", form)).data;
+export const bookingAction = async (id, action, form) => (await api.post(`/bookings/${id}/actions/${action}`, form)).data;
+export const sendBookingMessage = async (id, body) => (await api.post(`/bookings/${id}/messages`, { body })).data;
+export const reviewBooking = async (id, form) => (await api.post(`/bookings/${id}/review`, form)).data;
