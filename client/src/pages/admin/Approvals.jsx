@@ -33,14 +33,18 @@ export default function AdminApprovals() {
     }
   };
 
+  const [rejectError, setRejectError] = useState("");
   const handleReject = async () => {
     if (!modal) return;
     setActionLoading(modal._id);
+    setRejectError("");
     try {
-      await rejectArtisan(modal._id, reason);
+      await rejectArtisan(modal._id, reason.trim());
       setModal(null);
       setReason("");
       fetchPending();
+    } catch (err) {
+      setRejectError(err.response?.data?.message || "Unable to reject this artisan.");
     } finally {
       setActionLoading(null);
     }
@@ -152,13 +156,16 @@ export default function AdminApprovals() {
               onChange={(e) => setReason(e.target.value)}
               placeholder="Reason for rejection..."
               rows={3}
-              className="input resize-none mb-4"
+              maxLength={1000}
+              className="input resize-none mb-1"
             />
+            <p className="text-2xs text-gray-400 mb-4">Required. The artisan sees this reason and can update their listing or appeal.</p>
+            {rejectError && <p role="alert" className="booking-error mb-4">{rejectError}</p>}
             <div className="flex flex-col sm:flex-row gap-3">
-              <button onClick={() => { setModal(null); setReason(""); }}
+              <button onClick={() => { setModal(null); setReason(""); setRejectError(""); }}
                       className="btn-outline flex-1">Cancel</button>
               <button onClick={handleReject}
-                      disabled={actionLoading === modal._id}
+                      disabled={actionLoading === modal._id || reason.trim().length < 5}
                       className="flex-1 py-2.5 rounded-md text-sm font-semibold 
                                  text-white bg-red-500 hover:bg-red-600 
                                  disabled:opacity-60 transition-colors">

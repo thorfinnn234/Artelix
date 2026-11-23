@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Bookmark, MessageCircle, Star, Wrench } from "lucide-react";
+import { Bell, Bookmark, CalendarDays, LifeBuoy, MessageCircle, Scale, ShieldAlert, Star, Wrench } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
   getNotifications,
@@ -14,6 +14,10 @@ const icons = {
   review: Star,
   saved: Bookmark,
   system: Bell,
+  booking: CalendarDays,
+  moderation: ShieldAlert,
+  appeal: Scale,
+  support: LifeBuoy,
 };
 
 function formatTime(value) {
@@ -27,6 +31,7 @@ function formatTime(value) {
 }
 
 function getNotificationsRoute(role) {
+  if (role === "admin") return "/admin/notifications";
   return role === "artisan" ? "/artisan/notifications" : "/user/notifications";
 }
 

@@ -9,6 +9,7 @@ import {
 import { startArtisanConversation } from "../../services/messageService";
 import UserLayout from "../../layouts/UserLayout";
 import { createReport } from "../../services/reportService";
+import VerifiedReviews from "../../components/VerifiedReviews";
 
 function StarRating({ rating, size = "w-5 h-5" }) {
   return (
@@ -204,7 +205,7 @@ export default function ArtisanDetails() {
                     {(artisan.rating || 0).toFixed(1)}
                   </span>
                   <span className="text-xs text-gray-400">
-                    ({artisan.ratingCount || 0} rating{artisan.ratingCount === 1 ? "" : "s"})
+                    ({artisan.ratingCount || 0} verified review{artisan.ratingCount === 1 ? "" : "s"})
                   </span>
                 </div>
               </div>
@@ -287,6 +288,8 @@ export default function ArtisanDetails() {
           </div>
         </div>
         {reportOpen && <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={(event) => event.target === event.currentTarget && setReportOpen(false)}><form onSubmit={handleReport} className="bg-white dark:bg-dark-surface rounded-xl p-6 w-full max-w-md"><h2 className="font-heading text-xl font-bold">Report this listing</h2><p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Reports go to the Artelix review team. Provide factual details so we can investigate.</p><label className="block text-sm font-semibold mt-4">Category<select name="category" required className="input mt-1"><option value="">Choose a category</option><option value="safety">Safety concern</option><option value="fraud">Fraud or scam</option><option value="harassment">Harassment</option><option value="poor_service">Poor service</option><option value="other">Other</option></select></label><label className="block text-sm font-semibold mt-4">What happened?<textarea name="details" minLength={15} maxLength={4000} rows={5} required className="input mt-1 resize-none" /></label><div className="flex gap-3 mt-5"><button type="button" className="btn-outline flex-1" onClick={() => setReportOpen(false)}>Cancel</button><button className="btn-primary flex-1" disabled={reporting}>{reporting ? "Sending…" : "Send report"}</button></div></form></div>}
+
+        <VerifiedReviews key={artisan._id} artisanId={artisan._id} rating={artisan.rating || 0} />
 
         <div className="mb-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">

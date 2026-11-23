@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Bell, Bookmark, CheckCheck, MessageCircle, Star, Wrench } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Bell, Bookmark, CalendarDays, CheckCheck, LifeBuoy, MessageCircle, Scale, ShieldAlert, Star, Wrench } from "lucide-react";
 import {
   getNotifications,
   markAllNotificationsRead,
@@ -12,6 +13,10 @@ const icons = {
   review: Star,
   saved: Bookmark,
   system: Bell,
+  booking: CalendarDays,
+  moderation: ShieldAlert,
+  appeal: Scale,
+  support: LifeBuoy,
 };
 
 function formatTime(value) {
@@ -29,6 +34,7 @@ export default function NotificationCenter() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const unreadCount = notifications.filter((notification) => !notification.readAt).length;
 
@@ -39,15 +45,18 @@ export default function NotificationCenter() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Opening a notification marks it read and takes the user to the related page.
   const markOneRead = async (id) => {
-    await markNotificationRead(id);
-    setNotifications((current) =>
-      current.map((notification) =>
-        notification._id === id
-          ? { ...notification, readAt: notification.readAt || new Date().toISOString() }
-          : notification,
-      ),
-    );
+    const notification = notifications.find((item) => item._id === id);
+    if (notification && !notification.readAt) {
+      await markNotificationRead(id).catch(() => {});
+      setNotifications((current) =>
+        current.map((item) =>
+          item._id === id ? { ...item, readAt: new Date().toISOString() } : item,
+        ),
+      );
+    }
+    if (notification?.link) navigate(notification.link);
   };
 
   const markAllRead = async () => {

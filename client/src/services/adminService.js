@@ -59,3 +59,13 @@ export const unsuspendUser = async (id) => {
   const res = await api.patch(`/admin/users/${id}/unsuspend`);
   return res.data;
 };
+
+export const getAdminAppeals = async (params) => {
+  const res = await api.get("/artisan/admin/appeals", { params });
+  return res.data;
+};
+
+export const resolveAppeal = async (id, decision, adminNote = "") => {
+  const res = await api.patch(`/artisan/admin/appeals/${id}/resolve`, { decision, adminNote });
+  return res.data;
+};

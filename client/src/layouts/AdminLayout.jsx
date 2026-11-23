@@ -1,4 +1,5 @@
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Scale } from "lucide-react";
+import NotificationDropdown from "../components/NotificationDropdown";
 import { Brand } from "../components/SiteDesign";
 import { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate, Link } from "react-router-dom";
@@ -38,6 +39,7 @@ const navLinks = [
     ),
     badge: "pending",
   },
+  { to: "/admin/appeals", label: "Appeals", icon: <Scale className="w-5 h-5"/> },
   {
     to: "/admin/users",
     label: "Users",
@@ -50,7 +52,7 @@ const navLinks = [
   },
   {
     to: "/admin/reported",
-    label: "Reported",
+    label: "Reports & support",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -220,6 +222,7 @@ export default function AdminLayout({ children, pendingCount = 0 }) {
           </button>
           <div className="workspace-label hidden lg:flex"><span className="workspace-dot"/>The Artelix workspace</div>
           <div className="flex items-center gap-2 min-w-0">
+            <NotificationDropdown />
             <ThemeToggle />
             <div className="ml-2">
               <ProfileDropdown user={user} onLogout={handleLogout} />
