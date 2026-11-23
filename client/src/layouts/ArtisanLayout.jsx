@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import ThemeToggle from "../components/ThemeToggle";
 import NotificationDropdown from "../components/NotificationDropdown";
 import MessageDropdown from "../components/MessageDropdown";
+import { LifeBuoy } from "lucide-react";
 
 const navLinks = [
   {
@@ -58,6 +59,7 @@ const navLinks = [
       </svg>
     ),
   },
+  { to: "/artisan/support", label: "Help & support", icon: <LifeBuoy className="w-5 h-5" /> },
 ];
 
 function ProfileDropdown({ user, onLogout }) {

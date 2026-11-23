@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getMyArtisan } from "../services/artisanService";
 import api from "../services/api";
@@ -50,8 +51,12 @@ export default function ArtisanSuspensionAlert() {
       <AlertTriangle size={22} className="mt-0.5 shrink-0" aria-hidden="true"/>
       <div className="min-w-0">
         <h2 className="text-sm font-bold">{accountSuspended ? "Your account has been suspended." : "Your artisan listing has been suspended."}</h2>
-        <p className="mt-1 text-sm leading-relaxed">{accountSuspended ? "Please contact the Artelix support team for help with your account." : "Your listing is no longer visible to customers. Please contact the Artelix support team to resolve the suspension."}</p>
+        <p className="mt-1 text-sm leading-relaxed">{accountSuspended ? "Please contact the Artelix support team for help with your account." : "Your listing is no longer visible to customers. You can appeal this decision."}</p>
         {listing?.status === "suspended" && listing.moderationReason && <p className="mt-2 break-words text-sm leading-relaxed"><strong>Reason: </strong>{listing.moderationReason}</p>}
+        <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold">
+          {listing?.status === "suspended" && <Link to="/artisan/dashboard#appeal" className="underline">Review & appeal</Link>}
+          <Link to="/artisan/support" className="underline">Contact support</Link>
+        </p>
       </div>
     </section>
   );

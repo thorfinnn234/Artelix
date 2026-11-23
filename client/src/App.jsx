@@ -38,6 +38,9 @@ import AdminApprovals from "./pages/admin/Approvals";
 import AdminUsers from "./pages/admin/Users";
 import AdminReported from "./pages/admin/Reported";
 import AdminSettings from "./pages/admin/Settings";
+import AdminAppeals from "./pages/admin/Appeals";
+import AdminNotifications from "./pages/admin/Notifications";
+import Support from "./pages/shared/Support";
 
 // Auth-aware routes component
 function AppRoutes() {
@@ -56,6 +59,9 @@ function AppRoutes() {
     <Routes>
       <Route path="/user/bookings" element={<ProtectedRoute role="user"><Bookings/></ProtectedRoute>}/>
       <Route path="/admin/bookings" element={<ProtectedRoute role="admin"><Bookings/></ProtectedRoute>}/>
+      <Route path="/admin/appeals" element={<ProtectedRoute role="admin"><AdminAppeals/></ProtectedRoute>}/>
+      <Route path="/admin/notifications" element={<ProtectedRoute role="admin"><AdminNotifications/></ProtectedRoute>}/>
+      <Route path="/artisan/support" element={<ProtectedRoute role="artisan"><Support/></ProtectedRoute>}/>
       {/* Root redirect based on auth status */}
       <Route path="/" element={
         user ? (

@@ -61,3 +61,18 @@ export const unsaveArtisan = async (ArtisanId) => {
   const res = await api.delete(`/me/saved/${ArtisanId}`);
   return res.data;
 };
+
+export const getArtisanReviews = async (id, params) => {
+  const res = await api.get(`/artisan/${id}/reviews`, { params });
+  return res.data;
+};
+
+export const getMyAppeals = async () => {
+  const res = await api.get("/artisan/me/appeals");
+  return res.data;
+};
+
+export const submitAppeal = async (message) => {
+  const res = await api.post("/artisan/me/appeal", { message });
+  return res.data;
+};

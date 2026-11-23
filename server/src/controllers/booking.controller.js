@@ -3,8 +3,8 @@ import { z } from "zod";
 import Booking from "../models/booking.js";
 import Artisan from "../models/artisan.js";
 import User from "../models/User.js";
-import Notification from "../models/notification.js";
-import ArtisanRating from "../models/artisanRating.js";
+import { notifyUser, notifyAdmins } from "../services/notify.js";
+import { verifiedRating } from "../services/reviews.js";
 import { bookingError, bookingTransition, parseBooking, participantRole, requestSchema } from "../services/bookingPolicy.js";
 import { bookingPhotoRoot, saveBookingPhotos, removeBookingPhotos } from "../services/bookingPhotos.js";
 
@@ -15,14 +15,33 @@ async function currentUser(req) {
   if (!user) throw bookingError("Account not found.", 401);
   return user;
 }
-async function notify(booking, actor, title, message) {
+async function notify(booking, actor, title, message, type = "booking") {
   const recipients = actor.role === "admin" ? [booking.customerId, booking.artisanOwnerId] : [String(actor._id) === String(booking.customerId) ? booking.artisanOwnerId : booking.customerId];
-  // A notification failure must not turn an already saved booking into a failed request.
-  await Promise.all(recipients.map(async userId => {
-    try {
-      await Notification.create({ userId, type: "system", title, message, link: `/${String(userId) === String(booking.customerId) ? "user/bookings" : "artisan/jobs"}?booking=${booking._id}` });
-    } catch (error) { console.error("Booking notification failed:", error.message); }
-  }));
+  // notifyUser swallows failures so an already saved booking never becomes a failed request.
+  await Promise.all(recipients.map(userId => notifyUser({
+    userId, type, title, message,
+    link: `/${String(userId) === String(booking.customerId) ? "user/bookings" : "artisan/jobs"}?booking=${booking._id}`,
+  })));
+}
+const reason = note => note ? ` Reason: ${note.slice(0, 200)}` : "";
+// Each booking action produces a notification that says what actually happened.
+function bookingEvent(action, booking, actor, body) {
+  const t = `"${booking.title}"`, who = actor.fullName || "The other party", note = typeof body.note === "string" ? body.note.trim() : "";
+  switch (action) {
+    case "quote": return ["Quote received", `${who} sent a quote for ${t}. Review and accept it to confirm the job.`];
+    case "confirm": return ["Booking approved", `${who} accepted your quote for ${t}. The job is confirmed.`];
+    case "decline": return ["Booking declined", `${t} was declined.${reason(note)}`];
+    case "cancel": return ["Booking cancelled", `${who} cancelled ${t}.${reason(note)}`];
+    case "start": return ["Work started", `${who} has started work on ${t}.`];
+    case "finish": return ["Work marked finished", `${who} marked ${t} as finished. Please confirm completion.`];
+    case "complete": return ["Job completed", `${who} confirmed ${t} is complete.`];
+    case "dispute": return ["Issue reported on booking", `${who} reported a problem with ${t}. Artelix support will review it.${reason(note)}`];
+    case "resolve": return ["Dispute resolved", `Artelix resolved the dispute on ${t} as ${body.outcome}.${reason(note)}`];
+    case "propose_change": return ["Change proposed", `${who} proposed new terms for ${t}.`];
+    case "accept_change": return ["Change accepted", `${who} accepted the proposed change to ${t}.`];
+    case "reject_change": return ["Change rejected", `${who} rejected the proposed change to ${t}.`];
+    default: return ["Booking updated", `${t}: ${action.replaceAll("_", " ")}.`];
+  }
 }
 async function expire(filter = {}) {
   await Booking.updateMany({ ...filter, status: { $in: ["requested", "quoted"] }, expiresAt: { $lte: new Date() } }, {
@@ -71,7 +90,7 @@ export async function createBooking(req, res) {
     booking = await Booking.create({ ...data, customerId: user._id, artisanOwnerId: artisan.ownerId, photos,
       history: [{ action: "request", status: "requested", actorId: user._id, note: "Service requested.", at: new Date() }] });
   } catch (error) { await removeBookingPhotos(photos); throw error; }
-  await notify(booking, user, "New booking request", `${user.fullName} requested: ${booking.title}`);
+  await notify(booking, user, "New job request", `${user.fullName} requested: ${booking.title}`);
   res.status(201).json({ booking: await populate(Booking.findById(booking._id)) });
 }
 export async function listBookings(req, res) {
@@ -109,7 +128,9 @@ export async function actOnBooking(req, res) {
   let updated;
   try { updated = await mutate(booking, req.body, update, history); }
   catch (error) { await removeBookingPhotos(photos); throw error; }
-  await notify(updated, user, "Booking updated", `${updated.title}: ${action.replaceAll("_", " ")}.`);
+  const [title, message] = bookingEvent(action, updated, user, req.body);
+  await notify(updated, user, title, message);
+  if (action === "dispute") await notifyAdmins({ type: "support", title: "New booking dispute", message: `${user.fullName} disputed "${updated.title}".`, link: `/admin/bookings?booking=${updated._id}` });
   res.json({ booking: await populate(Booking.findById(updated._id)) });
 }
 export async function addBookingMessage(req, res) {
@@ -122,7 +143,7 @@ export async function addBookingMessage(req, res) {
     $push: { messages: { senderId: user._id, senderName: user.fullName, body, at: new Date() } },
   }, { new: true, runValidators: true });
   if (!updated) throw bookingError("This booking has reached its message limit.", 409);
-  await notify(updated, user, "New booking message", `${user.fullName}: ${body.slice(0, 100)}`);
+  await notify(updated, user, "New booking message", `${user.fullName}: ${body.slice(0, 100)}`, "message");
   res.json({ booking: await populate(Booking.findById(updated._id)) });
 }
 export async function reviewBooking(req, res) {
@@ -139,12 +160,11 @@ export async function reviewBooking(req, res) {
     $push: { history: { action: "review", status: "completed", actorId: user._id, note: `Verified review: ${review.rating}/5.`, at: new Date() } },
   }, { new: true, runValidators: true, session });
   if (!updated) throw bookingError("This booking already has a review.", 409);
-  // Keep the existing artisan rating summary compatible with profile and search pages.
-  await ArtisanRating.findOneAndUpdate({ artisanId: booking.artisanId, userId: user._id }, { $set: { rating: review.rating } }, { upsert: true, new: true, runValidators: true, session });
-  const stats = await ArtisanRating.aggregate([{ $match: { artisanId: booking.artisanId } }, { $group: { _id: null, average: { $avg: "$rating" } } }]).session(session);
-  await Artisan.findByIdAndUpdate(booking.artisanId, { rating: Number((stats[0]?.average || 0).toFixed(1)) }, { session });
+  // The public rating is computed only from reviews attached to completed bookings,
+  // so every star counted comes from a customer who actually received the service.
+  await Artisan.findByIdAndUpdate(booking.artisanId, { rating: await verifiedRating(booking.artisanId, session) }, { session });
   }); } finally { await session.endSession(); }
-  await notify(updated, user, "New verified review", `${updated.title}: ${review.rating}/5 stars.`);
+  await notify(updated, user, "New verified review", `${user.fullName} rated "${updated.title}" ${review.rating}/5.`, "review");
   res.json({ booking: await populate(Booking.findById(updated._id)) });
 }
 export async function getBookingPhoto(req, res) {

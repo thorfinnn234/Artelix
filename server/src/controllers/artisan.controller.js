@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import Artisan from "../models/artisan.js";
 import User from "../models/User.js";
-import ArtisanRating from "../models/artisanRating.js";
 import ArtisanWork from "../models/artisanWork.js";
 import Notification from "../models/notification.js";
+import { notifyUser } from "../services/notify.js";
+import { listVerifiedReviews, verifiedReviewCount } from "../services/reviews.js";
 import {
   cleanText,
   validateDetailedAddress,
@@ -116,21 +117,43 @@ export async function getArtisanById(req, res) {
   const isSaved = (req.user?.savedArtisanIds || []).some(
     (savedId) => savedId.toString() === artisanDoc._id.toString()
   );
-  const [ratingCount, myRating] = await Promise.all([
-    ArtisanRating.countDocuments({ artisanId: artisanDoc._id }),
-    req.user
-      ? ArtisanRating.findOne({ artisanId: artisanDoc._id, userId: req.user._id }).lean()
-      : null,
-  ]);
+  const ratingCount = await verifiedReviewCount(artisanDoc._id);
 
   res.json({
     Artisan: {
       ...artisanDoc,
       isSaved,
       ratingCount,
-      myRating: myRating?.rating || 0,
     },
   });
+}
+
+// GET /api/artisan/:id/reviews (public, verified booking reviews only)
+export async function getArtisanReviews(req, res) {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ message: "Invalid Artisan id" });
+  }
+  const exists = await Artisan.exists({ _id: id, status: "approved" });
+  if (!exists) return res.status(404).json({ message: "Artisan not found" });
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 30);
+  res.json(await listVerifiedReviews(id, { page, limit }));
+}
+
+const MODERATION_LINK = "/artisan/dashboard#appeal";
+
+function moderationReason(req, res) {
+  const reason = cleanText(req.body?.reason);
+  if (reason.length < 5) {
+    res.status(400).json({ message: "Give the artisan a clear reason (at least 5 characters)." });
+    return null;
+  }
+  if (reason.length > 1000) {
+    res.status(400).json({ message: "Reason cannot exceed 1,000 characters." });
+    return null;
+  }
+  return reason;
 }
 
 export async function getArtisanWorks(req, res) {
@@ -166,7 +189,15 @@ export async function approveArtisan(req, res) {
   if (!artisanDoc) return res.status(404).json({ message: "Artisan not found" });
 
   artisanDoc.status = "approved";
+  artisanDoc.moderationReason = "";
   await artisanDoc.save();
+  await notifyUser({
+    userId: artisanDoc.ownerId,
+    type: "moderation",
+    title: "Your listing is approved",
+    message: `${artisanDoc.name} is now live and visible to customers.`,
+    link: "/artisan/listing",
+  });
 
   res.json({ message: "Artisan approved", Artisan: artisanDoc });
 }
@@ -409,20 +440,26 @@ export async function adminListArtisan(req, res) {
 // Admin: reject Artisan (usually from pending)
 export async function rejectArtisan(req, res) {
   const { id } = req.params;
-  const { reason = "" } = req.body;
 
   if (!mongoose.isValidObjectId(id)) {
     return res.status(400).json({ message: "Invalid Artisan id" });
   }
+  const reason = moderationReason(req, res);
+  if (!reason) return;
 
   const artisanDoc = await Artisan.findById(id);
   if (!artisanDoc) return res.status(404).json({ message: "Artisan not found" });
 
   artisanDoc.status = "rejected";
-  // Optional: store reason (needs schema field, see note below)
-  if (reason) artisanDoc.moderationReason = reason;
-
+  artisanDoc.moderationReason = reason;
   await artisanDoc.save();
+  await notifyUser({
+    userId: artisanDoc.ownerId,
+    type: "moderation",
+    title: "Your listing was not approved",
+    message: `Reason: ${reason} You can update your listing and submit an appeal.`,
+    link: MODERATION_LINK,
+  });
 
   res.json({ message: "Artisan rejected", Artisan: artisanDoc });
 }
@@ -430,19 +467,26 @@ export async function rejectArtisan(req, res) {
 // Admin: suspend Artisan
 export async function suspendArtisan(req, res) {
   const { id } = req.params;
-  const { reason = "" } = req.body;
 
   if (!mongoose.isValidObjectId(id)) {
     return res.status(400).json({ message: "Invalid Artisan id" });
   }
+  const reason = moderationReason(req, res);
+  if (!reason) return;
 
   const artisanDoc = await Artisan.findById(id);
   if (!artisanDoc) return res.status(404).json({ message: "Artisan not found" });
 
   artisanDoc.status = "suspended";
-  if (reason) artisanDoc.moderationReason = reason;
-
+  artisanDoc.moderationReason = reason;
   await artisanDoc.save();
+  await notifyUser({
+    userId: artisanDoc.ownerId,
+    type: "moderation",
+    title: "Your listing has been suspended",
+    message: `Reason: ${reason} You can submit an appeal from your dashboard.`,
+    link: MODERATION_LINK,
+  });
 
   res.json({ message: "Artisan suspended", Artisan: artisanDoc });
 }
@@ -459,9 +503,15 @@ export async function unsuspendArtisan(req, res) {
   if (!artisanDoc) return res.status(404).json({ message: "Artisan not found" });
 
   artisanDoc.status = "approved";
-  artisanDoc.moderationReason = ""; // clear reason after unsuspending (optional)
-
+  artisanDoc.moderationReason = "";
   await artisanDoc.save();
+  await notifyUser({
+    userId: artisanDoc.ownerId,
+    type: "moderation",
+    title: "Your listing has been restored",
+    message: `${artisanDoc.name} is visible to customers again.`,
+    link: "/artisan/listing",
+  });
 
   res.json({ message: "Artisan unsuspended", Artisan: artisanDoc });
 }

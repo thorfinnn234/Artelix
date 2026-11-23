@@ -225,7 +225,7 @@ export default function UserHome() {
               ? "Try adjusting your search or filter"
               : "No approved Artisan yet. Check back soon!"}
           </p>
-          {(search || category) && (
+          {(search || category || serviceArea || availableOnly) && (
             <button
               onClick={() => {
                 setSearch("");

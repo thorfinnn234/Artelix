@@ -6,6 +6,7 @@ import {
   approveArtisan,
   getArtisanById,
   getArtisanWorks,
+  getArtisanReviews,
   listArtisan,
   getMyArtisan,
   updateMyArtisan,
@@ -45,6 +46,7 @@ router.get("/admin/all", auth, requireRole("admin"), adminListArtisan);
 
 // public details
 router.get("/:id/works", getArtisanWorks);
+router.get("/:id/reviews", getArtisanReviews);
 router.post("/:id/rating", auth, rateArtisan);
 router.get("/:id", optionalAuth, getArtisanById);
 

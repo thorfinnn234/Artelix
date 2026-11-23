@@ -3,6 +3,7 @@ import { PageIntro } from "../../components/SiteDesign";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ArtisanLayout from "../../layouts/ArtisanLayout";
+import AppealPanel from "../../components/AppealPanel";
 import { getMyArtisan, getArtisan, getMyWorks } from "../../services/artisanService";
 import { useAuth } from "../../context/AuthContext";
 
@@ -75,16 +76,16 @@ return (
       <PageIntro eyebrow="YOUR CRAFT. YOUR POSSIBILITIES." title={<>Great work starts<br/><span>with you.</span></>} description="Showcase your skills, manage your listing, and build your next connection."><Link to="/artisan/listing" className="btn-primary">Manage your listing <span aria-hidden="true">↗</span></Link></PageIntro>
 
       {/* Status Banner */}
-      {!loadingArtisan && myArtisan && ["pending", "rejected"].includes(myArtisan.status) && (
-        <div className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2
-                        ${myArtisan.status === "pending"
-                          ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 border border-amber-200"
-                          : "bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-200"}`}>
-          {myArtisan.status === "pending" ? "⏳" : "🚫"}
-          {myArtisan.status === "pending"
-            ? "Your Artisan profile is pending admin approval."
-            : `Your account has been ${myArtisan.status}. Contact support.`}
+      {!loadingArtisan && myArtisan?.status === "pending" && (
+        <div className="mb-6 px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2 bg-amber-50 dark:bg-amber-500/10 text-amber-600 border border-amber-200">
+          ⏳ Your Artisan profile is pending admin approval. You'll get a notification when it's reviewed.
         </div>
+      )}
+
+      {/* Rejection / suspension reason, appeal form and appeal history */}
+      <AppealPanel />
+      {["suspended", "rejected"].includes(myArtisan?.status) && (
+        <p className="-mt-4 mb-6 text-xs text-gray-400">Need to talk to someone? <Link to="/artisan/support" className="text-green-600 dark:text-green-400 font-semibold">Contact support</Link></p>
       )}
 
       {/* Stats Row */}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import AdminLayout from "../../layouts/AdminLayout";
 import {
   getAdminArtisan, approveArtisan, rejectArtisan,
@@ -6,12 +7,16 @@ import {
 } from "../../services/adminService";
 
 const STATUS_FILTERS = ["all", "approved", "pending", "suspended", "rejected"];
+// These decisions are sent to the artisan, so they must always explain why.
+const REASON_REQUIRED = ["reject", "suspend", "verification-reject"];
 
 export default function AdminArtisan() {
+  const [params] = useSearchParams();
   const [Artisan, setArtisan]   = useState([]);
   const [total, setTotal]       = useState(0);
   const [loading, setLoading]   = useState(true);
-  const [search, setSearch]     = useState("");
+  const [search, setSearch]     = useState(() => params.get("search") || "");
+  const [actionError, setActionError] = useState("");
   const [status, setStatus]     = useState("all");
   const [page, setPage]         = useState(1);
   const [actionLoading, setActionLoading] = useState(null);
@@ -54,6 +59,7 @@ export default function AdminArtisan() {
 
   const handleAction = async (action, id, reasonText = "") => {
     setActionLoading(id);
+    setActionError("");
     try {
       if (action === "approve")   await approveArtisan(id);
       if (action === "reject")    await rejectArtisan(id, reasonText);
@@ -66,11 +72,12 @@ export default function AdminArtisan() {
       setReason("");
       fetchArtisan();
     } catch (err) {
-      console.error(err);
+      setActionError(err.response?.data?.message || "That action could not be completed.");
     } finally {
       setActionLoading(null);
     }
   };
+  const reasonMissing = modal && REASON_REQUIRED.includes(modal.type) && reason.trim().length < 5;
 
   return (
     <AdminLayout>
@@ -290,17 +297,23 @@ export default function AdminArtisan() {
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={`Reason for ${modal.type}...`}
                 rows={3}
-                className="input resize-none mb-4"
+                maxLength={1000}
+                aria-describedby="moderation-reason-help"
+                className="input resize-none mb-1"
               />
             )}
+            {REASON_REQUIRED.includes(modal.type) && (
+              <p id="moderation-reason-help" className="text-2xs text-gray-400 mb-4">The artisan will see this reason in their notification and can appeal it.</p>
+            )}
+            {actionError && <p role="alert" className="booking-error mb-4">{actionError}</p>}
             <div className="flex flex-col sm:flex-row gap-3">
-              <button onClick={() => { setModal(null); setReason(""); }}
+              <button onClick={() => { setModal(null); setReason(""); setActionError(""); }}
                       className="btn-outline flex-1">
                 Cancel
               </button>
               <button
-                onClick={() => handleAction(modal.type, modal.Artisan._id, reason)}
-                disabled={actionLoading === modal.Artisan._id}
+                onClick={() => handleAction(modal.type, modal.Artisan._id, reason.trim())}
+                disabled={actionLoading === modal.Artisan._id || reasonMissing}
                 className={`flex-1 py-2.5 rounded-md text-sm font-semibold text-white 
                            disabled:opacity-60 transition-colors
                            ${modal.type === "delete" || modal.type === "reject" || modal.type === "verification-reject"
